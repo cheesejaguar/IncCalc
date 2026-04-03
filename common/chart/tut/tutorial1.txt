@@ -1,0 +1,81 @@
+ 
+
+Basics
+
+ 
+
+1. Type the following text in a text document, name the document sample.php, and place it on your server:
+
+<?php
+
+//include charts.php to access the SendChartData function
+include "charts.php";
+
+SendChartData ();
+
+?>
+
+ 
+
+If charts.php isn't in the same directory as this text document, the include statement must contain the appropriate file path. This must be a relative path to prevent the server from interpreting the php code before including it. Example: "/includes/charts.php".
+
+Make sure you add the include statement only once in each script page, or use include_once instead.
+
+ 
+
+2. Using another document, create a web page on the same server, and insert the charts.swf flash file into it with the InsertChart() function like this:
+
+<HTML>
+<BODY bgcolor="#FFFFFF">
+
+<?php
+
+//include charts.php to access the InsertChart function
+include "charts.php";
+
+echo InsertChart ( "charts.swf", "charts_library", "sample.php", 400, 250 );
+
+?>
+
+</BODY>
+</HTML>
+
+ 
+
+In this example, the InsertChart() function does 4 things:
+
+   1. Inserts the flash file charts.swf into the web page
+   2. Tells the tool where to find the library folder charts_library
+   3. Tells the tool to get the chart's data from sample.php created in the first step.
+   4. Determines the chart's width and height.
+
+ 
+
+If charts.php, charts.swf, charts_library, or sample.php aren't in the same directory as your web page file, the URLs must contain the appropriate file paths. The path for charts.php must be relative to prevent the server from interpreting the php code before including it. Other paths can either be relative or absolute. Examples: "/includes/charts.php", "http://yourserver/graphics/charts.swf", "/libraries/charts_library", "php/sample.php".
+
+If your server isn't configured to process PHP inside .html pages, either configure it to do so, or save this web page as .php document.
+
+The InsertChart() function has additional parameters controlling the canvas color. They are described in the reference section
+
+ 
+
+3. Preview the web page in a browser. Because the PHP code in sample.php doesn't describe a chart, this example generates a basic, default chart like this:
+
+ 
+
+Chart Modification
+
+To edit the chart, create the necessary variable in sample.php and pass it as an argument to the SendChartData() function:
+
+<?php
+
+//include charts.php in your script
+include "charts.php";
+
+//change the chart to a bar chart
+$chart [ 'chart_type' ] = "bar";
+
+//send the new chart data to the charts.swf flash file
+SendChartData ( $chart );
+
+?>

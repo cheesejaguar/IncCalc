@@ -1,0 +1,76 @@
+
+Chart Attributes
+
+ 
+
+In the chart's source, chart attributes can be modified to create different charts. This is done by modifying the variable passed as an argument to the SendChartData() function. Example:
+
+<?php
+include "charts.php";
+ 
+//change the chart to a bar chart
+$chart [ 'chart_type' ] = "bar";
+ 
+SendChartData ( $chart );
+?>
+
+ 
+
+Attribute Array
+
+The above $chart [ 'chart_type' ] sets a single string value. However, most chart attributes are arrays holding several keys and values like this:
+
+<?php
+include "charts.php";
+ 
+<!-- make the chart's border 4 pixels thick, except for the top -->
+$chart [ 'chart_border' ] = array ( 'top_thickness'=>0, 'bottom_thickness'=>4, 'left_thickness'=>4, 'right_thickness'=>4 );
+ 
+SendChartData ( $chart );
+?>
+
+ 
+
+Setting Multiple Attributes
+
+To edit several chart attributes, set as many attribute variables as needed before calling the SendChartData() function:
+
+<?php
+include "charts.php";
+ 
+//change the chart to a bar chart
+$chart [ 'chart_type' ] = "bar";
+ 
+<!-- make the chart's border 4 pixels thick, except for the top -->
+$chart [ 'chart_border' ] = array ( 'top_thickness'=>0, 'bottom_thickness'=>4, 'left_thickness'=>4, 'right_thickness'=>4 );
+ 
+SendChartData ( $chart );
+?>
+
+ 
+
+Omitting Attributes
+
+Setting the chart attributes is optional. When omitted, the default attributes are used instead:
+
+<?php
+include "charts.php";
+ 
+<!-- make the chart's bottom border 4 pixels, and keep the other defaults -->
+$chart [ 'chart_border' ] = array ( 'bottom_thickness'=>4 );
+ 
+SendChartData ( $chart );
+?>
+
+or:
+
+<?php
+include "charts.php";
+ 
+<!-- make the chart's bottom border 4 pixels, and keep the other defaults -->
+$chart [ 'chart_border' ][ 'bottom_thickness' ] = 4;
+ 
+SendChartData ( $chart );
+?>
+
+ 

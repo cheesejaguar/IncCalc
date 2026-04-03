@@ -1,0 +1,39 @@
+from		****
+date		Jun 3, 2007 2:14 PM	 
+subject		Inc. Calculator Wonder Advisor	 
+----
+
+Hi,
+
+Firstly I have to say congratulations on your wonderful calculator. There is one bit of
+advise that I would like to take issue with though.  In the Wonder advisor page the 
+following note is stated:
+
+Note: We typically recommend that the first wonder purchased be the interstate system 
+due to the infrastructure-related bonuses it provides.
+
+This is not economically sound. The IS only provides 8% reductions in Infra related 
+costs, which looks good, but at a time when nations are buying Wonders a lot of money 
+is not spend on Infra. That means that the Wonders that provide an increase in income 
+are much better to get as a first Wonder.
+
+A typical nation will probably be making between 5 and 6M per day (before bills) in the 
+30 days between buying the 1st and 2nd wonder. So in those 30 days the total income of 
+such a nation would be a maximum of 180M. Out of that pot at least 30M will be spend on 
+the 2nd wonder, and probably some more on a donation and military taxes and purchases. 
+Lets say that in total this will mean that at least 40M of this 180M will be spend on 
+other things than Infra (either upkeep or new purchases).  Therefore at the most 78% of 
+this money will be spend on Infra related stuff. That means that the 8% reduction in 
+Infra costs translates only into a maximum of being 6.2% "better off" (and if Military 
+and Tech spending is much higher then this percentage goes further down).
+
+At the very least the SSS has a better percentage (7.1%), and depending on the exact 
+circumstances of a nation the $10 wonders might actually also outperform the IS as a 
+first wonder choice.
+
+Feel free to do with this what you like, for the time being I'd like to say thanks for 
+the calculator one more time! Great piece of work!
+
+Regards,
+****
+(aka TheBFG of Mimas)

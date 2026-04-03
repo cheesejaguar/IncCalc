@@ -1,0 +1,171 @@
+#infocontentsub h2 {
+	margin: 0 0 5px 0;
+	padding: 0;
+	font-size: 16px;
+}
+
+#weeee hr {
+	border: 0;
+	color: #CCCCCC!important;
+	background-color: #CCCCCC!important;
+	height: 1px;
+}
+
+/* funky list */
+
+#featuresAll {
+	float: left;
+	width: 337px;
+	border-right: 1px dotted #CCCCCC;
+}
+
+#featuresAll2 {
+	float: left;
+	width: 337px;
+	border-right: 0px none #CCCCCC;
+}
+
+#featuresTech {
+	float: right;
+	width: 310px;
+}
+
+#featuresAll ul, #featuresTech ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.nav {
+	padding: 5px;
+	width: 300px;
+}
+
+.listit {
+	padding: 5px;
+	width: 300px;
+	background-image: url('images/feat_yes.png');
+	background-position: right;
+	background-repeat: no-repeat;
+}
+
+.listit2 {
+	padding: 5px;
+	width: 300px;
+	background-image: url('images/feat_partial.png');
+	background-position: right;
+	background-repeat: no-repeat;
+}
+
+.listit3 {
+	padding: 5px;
+	width: 300px;
+	background-image: url('images/feat_untested.png');
+	background-position: right;
+	background-repeat: no-repeat;
+}
+
+.listitno {
+	padding: 5px;
+	width: 300px;
+	background-image: url('images/feat_cross.png');
+	background-position: right;
+	background-repeat: no-repeat;
+}
+
+TABLE {
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+legend {
+	padding: 5px;
+	font-weight: bolder;
+	font-size: larger;
+}
+
+.tablist {
+	padding: 3px 8px;
+	height: 23px;
+	border-style: hidden;
+	border-width: 0px;
+}
+
+.tablist a {
+	color: #222222;
+	text-decoration: underline;
+}
+
+.alert {
+	color:#B91631;
+	font-weight: bolder;
+}
+
+.white {
+	background-color:#fffffe;
+}
+
+.shade {
+	background-color:#EAEAEA;
+}
+
+thead {
+	font-weight: bolder;
+	font-variant: small-caps;
+	font-stretch: expanded;
+	font-size: larger;
+	color: #fffffe;
+	background-color: #B91631;
+}
+
+.listit img {
+	vertical-align: middle;
+}
+
+.listone {
+	background-color: #ffffff;
+	border-bottom: 1px solid #333333;
+}
+
+.listtwo {
+	background-color: #EAEAEA;
+	border-bottom: 1px solid #333333;
+}
+
+
+
+.resultsuser h3 {
+	padding: 0;
+	margin: 3px 0 8px 0;
+	font-size: 12px;
+}
+
+/* profile search */
+
+.resultsWrapper {
+	width:450px;
+	height: 75px;
+	border-bottom: 1px solid #CCCCCC;
+}
+
+.resultsCount {
+	width:70px;
+	height: 70px;
+	font-size:30px;
+	font-weight: bold;
+	color: #FFDFC3;
+	text-align:center;
+	float: left;
+}
+
+.resultspaging {
+	padding-top: 10px;
+}
+
+td {
+	text-align: center;
+}
+
+select[class="dropdown"] {
+	width:122px;
+}

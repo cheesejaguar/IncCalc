@@ -1,0 +1,942 @@
+@import url("sub.css");
+
+html, body {
+    margin: 0px;
+    padding: 0px;
+}
+
+body {
+    background-color: #B92432;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+}
+
+/* misc */
+
+img {
+    border: 0;
+}
+
+hr {
+    border: 0;
+    color: #ffffff;
+    background-color: #ffffff;
+    height: 1px;
+}
+
+#infocontent hr, #infocontentsub hr, #infocontentsubad hr {
+    border: 0;
+    color: #B91631;
+    background-color: #B91631;
+    height: 1px;
+}
+
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.registerbutton {
+    padding-top: 5px;
+}
+
+.usericon {
+
+}
+
+/*login */
+
+#login {
+    background-image: url('images/login_bg.gif');
+    background-repeat: no-repeat;
+    width: 300px;
+    height: 136px;
+    color: #FFFFFF;
+    margin-top: 40px;
+    float: right;
+}
+
+#loginForm {
+    padding: 35px 0px 0px 20px;
+}
+
+.logininput {
+    background-repeat: no-repeat;
+    border: 1px solid #ffffff;
+    color: #000000;
+    background-position: 0px 1px;
+    height: 16px;
+    width: 145px;
+    padding-left: 17px;
+}
+
+.user {
+    background-image:url('images/login_user.gif');
+    margin-bottom: 5px;
+}
+
+.pass {
+    background-image:url('images/login_pass.gif');
+}
+
+label {
+    padding-top: 5px;
+}
+
+/* weee */
+
+#top {
+    background-color: #B82330; height: 5px;
+}
+
+#mainWrapper {
+    width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 35px;
+}
+
+#logo {
+    float: left;
+}
+
+#logo h1 {
+    text-indent: -1000px;
+/*  IE 5 Hack \*/
+    overflow: hidden;
+/* end hack */
+    padding:0;
+    margin:0;
+}
+
+#logo h1 {
+    width: 132px;
+    height: 137px;
+    background: transparent url('images/main_logo.gif') no-repeat;
+}
+
+#logo h1 a {
+    width: 132px;
+    height: 137px;
+    display: block;
+}
+
+#intro {
+    float: right;
+    width:545px;
+}
+
+#info, #infocontent, #infocontentsub {
+    width: 675px;
+}
+
+#infocontentsubad {
+    width: 530px;
+}
+
+#infocontent, #infocontentsub, #infocontentsubad {
+    padding: 20px 0 15px 20px;
+}
+
+#center {
+    width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 15px;
+}
+
+#navi {
+    background-image: url('images/navigb.gif');
+    background-repeat: no-repeat;
+    height: 39px;
+    margin-top: 13px;
+}
+
+#features {
+    width: 350px;
+    float: left;
+}
+
+#blogger {
+    background-image: url('images/blogger-bg.gif');
+    background-repeat: repeat-x;
+    background-color: #F2F2F2;
+    height: 300px;
+    border-bottom: 5px solid #832733;
+    border-top: 10px solid #ffffff;
+}
+
+#blogger h2 {
+    color: #666666;
+    font-size: 16px;
+    padding: 0;
+    margin: 0;
+}
+
+
+#theendisnear {
+    clear: both;
+    padding-top: 15px;
+    color: #999999;
+}
+
+#blogposts {
+    width: 445px;
+    height: 224px;
+    background-image: url('images/posts-bg.gif');
+    background-color: #BA2532;
+    float:left;
+    color: #DFDFDF;
+    overflow: hidden;
+}
+
+#blogposts ul {
+    list-style-type: none;
+    padding: 15px;
+    margin: 0;
+}
+
+#blogposts li {
+    padding-bottom: 2px;
+}
+
+#footer {
+    width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 10px;
+    color: #FFFFFF;
+    padding-top: 15px;
+}
+
+#blogsearch {
+    float: left;
+    width: 270px;
+}
+
+#contentbg {
+    background-color: #FFFFFF;
+    border-bottom: 5px solid #832733;
+}
+
+/* links */
+
+a, a:active, a:visited {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: normal;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* links end */
+
+#footer h4 {
+    margin: 0 0 -5px 0;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #FFFFFF;
+}
+
+#footer ul {
+    list-style: none;
+    margin: 10px 0 0 0;
+    padding: 0;
+}
+
+#footer li {
+    margin: 0;
+    padding: 0;
+}
+
+#footer ul a:hover {
+    background-color: #832834;
+}
+
+/* lists end */
+
+/* typo */
+#intro p {
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+}
+
+.introtext {
+    padding-bottom: 13px;
+}
+
+#intro a, #intro a:active, #intro a:visited {
+    color: #000000;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#intro a:hover {
+    text-decoration: underline;
+}
+
+#infocontentsub a, #infocontentsub a:active, #infocontentsub a:visited {
+    color: #000000;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#infocontentsub a:hover {
+    text-decoration: underline;
+}
+
+/* navi */
+
+#navi ul {
+    margin: 0px;
+    padding: 10px;
+    text-align: center;
+}
+
+#navi li {
+    display: inline;
+    list-style-type: none;
+}
+
+#navi a {
+    padding: 5px 15px 5px 15px;
+    font-size: 15px;
+    letter-spacing: 1px;
+}
+
+#navi a:link, #navi a:visited {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+#navi a:hover {
+    color: #888888;
+    text-decoration: none;
+}
+
+.footerlinks a, .footerlinks a:link, .footerlinks a:visited, .footerlinks a:hover  {
+    color: #ffffff;
+    padding: 0 5px 0 5px;
+}
+
+.copyright {
+    color: #999999;
+    padding-left: 5px;
+}
+
+.copyright a, .copyright a:link, .copyright a:visited, .copyright a:hover  {
+    color: #ffffff;
+}
+
+.psIcon {
+    vertical-align: middle;
+    padding-right: 5px;
+}
+
+
+.featuresAll form fieldset, .featuresAll2 form fieldset, .featuresTech form fieldset {
+  clear: both;
+  overflow: hidden;
+  font-size: 100%;
+  border-color: #000000;
+  border-width: 1px 0 0 0;
+  border-style: solid none none none;
+  padding: 10px;
+  margin: 0 0 0 0;
+}
+
+.featuresAll form fieldset legend, .featuresAll2 form fieldset legend, .featuresTech form fieldset legend {
+  font-size: 140%;
+  font-weight: normal;
+  color: #000000;
+  margin: 0 0 0 0;
+  padding: 0 5px;
+}
+
+
+ fieldset {
+ overflow: hidden;
+ position: relative;
+ }
+
+  input[class="affluent"], input[class="Affl"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="affluent"] + label, input[class="Affl"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/affluent_off.gif') top left no-repeat;
+    }
+
+    input[class="affluent"]:checked + label, input[class="Affl"]:checked + label {
+        background: url('images/res/affluent.gif') top left no-repeat;
+    }
+
+  input[class="aluminum"], input[class="Alum"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="aluminum"] + label, input[class="Alum"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/aluminum_off.gif') top left no-repeat;
+    }
+
+    input[class="aluminum"]:checked + label, input[class="Alum"]:checked + label {
+        background: url('images/res/aluminum.gif') top left no-repeat;
+    }
+
+  input[class="asphalt"], input[class="Asph"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="asphalt"] + label, input[class="Asph"] + label  {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/asphalt_off.gif') top left no-repeat;
+    }
+
+    input[class="asphalt"]:checked + label , input[class="Asph"]:checked + label {
+        background: url('images/res/asphalt.gif') top left no-repeat;
+    }
+
+  input[class="automobile"] , input[class="Auto"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="automobile"] + label, input[class="Auto"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/automobile_off.gif') top left no-repeat;
+    }
+
+    input[class="automobile"]:checked + label, input[class="Auto"]:checked + label {
+        background: url('images/res/automobile.gif') top left no-repeat;
+    }
+
+  input[class="beer"], input[class="Beer"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="beer"] + label, input[class="Beer"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/beer_off.gif') top left no-repeat;
+    }
+
+    input[class="beer"]:checked + label, input[class="Beer"]:checked + label {
+        background: url('images/res/beer.gif') top left no-repeat;
+    }
+
+  input[class="cattle"], input[class="Catt"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="cattle"] + label, input[class="Catt"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/cattle_off.gif') top left no-repeat;
+    }
+
+    input[class="cattle"]:checked + label, input[class="Catt"]:checked + label {
+        background: url('images/res/cattle.gif') top left no-repeat;
+    }
+
+  input[class="coal"], input[class="Coal"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="coal"] + label, input[class="Coal"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/coal_off.gif') top left no-repeat;
+    }
+
+    input[class="coal"]:checked + label, input[class="Coal"]:checked + label {
+        background: url('images/res/coal.gif') top left no-repeat;
+    }
+
+  input[class="construction"], input[class="Cons"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="construction"] + label, input[class="Cons"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/construction_off.gif') top left no-repeat;
+    }
+
+    input[class="construction"]:checked + label, input[class="Cons"]:checked + label {
+        background: url('images/res/construction.gif') top left no-repeat;
+    }
+
+  input[class="fastfood"], input[class="Fast"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="fastfood"] + label, input[class="Fast"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/fastfood_off.gif') top left no-repeat;
+    }
+
+    input[class="fastfood"]:checked + label, input[class="Fast"]:checked + label {
+        background: url('images/res/fastfood.gif') top left no-repeat;
+    }
+
+  input[class="fish"], input[class="Fish"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="fish"] + label, input[class="Fish"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/fish_off.gif') top left no-repeat;
+    }
+
+    input[class="fish"]:checked + label, input[class="Fish"]:checked + label {
+        background: url('images/res/fish.gif') top left no-repeat;
+    }
+
+  input[class="furs"], input[class="Furs"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="furs"] + label, input[class="Furs"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/furs_off.gif') top left no-repeat;
+    }
+
+    input[class="furs"]:checked + label, input[class="Furs"]:checked + label {
+        background: url('images/res/furs.gif') top left no-repeat;
+    }
+
+  input[class="gems"], input[class="Gems"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="gems"] + label, input[class="Gems"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/gems_off.gif') top left no-repeat;
+    }
+
+    input[class="gems"]:checked + label, input[class="Gems"]:checked + label {
+        background: url('images/res/gems.gif') top left no-repeat;
+    }
+
+  input[class="gold"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="gold"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/gold_off.gif') top left no-repeat;
+    }
+
+    input[class="gold"]:checked + label {
+        background: url('images/res/gold.gif') top left no-repeat;
+    }
+
+  input[class="iron"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="iron"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/iron_off.gif') top left no-repeat;
+    }
+
+    input[class="iron"]:checked + label {
+        background: url('images/res/iron.gif') top left no-repeat;
+    }
+
+  input[class="jewelry"], input[class="Jewe"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="jewelry"] + label, input[class="Jewe"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/jewelry_off.gif') top left no-repeat;
+    }
+
+    input[class="jewelry"]:checked + label, input[class="Jewe"]:checked + label {
+        background: url('images/res/jewelry.gif') top left no-repeat;
+    }
+
+  input[class="lead"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="lead"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/lead_off.gif') top left no-repeat;
+    }
+
+    input[class="lead"]:checked + label {
+        background: url('images/res/lead.gif') top left no-repeat;
+    }
+
+  input[class="lumber"], input[class="lumb"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="lumber"] + label, input[class="lumb"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/lumber_off.gif') top left no-repeat;
+    }
+
+    input[class="lumber"]:checked + label, input[class="lumb"]:checked + label {
+        background: url('images/res/lumber.gif') top left no-repeat;
+    }
+
+  input[class="marble"], input[class="marb"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="marble"] + label, input[class="marb"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/marble_off.gif') top left no-repeat;
+    }
+
+    input[class="marble"]:checked + label, input[class="marb"]:checked + label {
+        background: url('images/res/marble.gif') top left no-repeat;
+    }
+
+  input[class="microchip"], input[class="micr"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="microchip"] + label, input[class="micr"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/microchip_off.gif') top left no-repeat;
+    }
+
+    input[class="microchip"]:checked + label, input[class="micr"]:checked + label {
+        background: url('images/res/microchip.gif') top left no-repeat;
+    }
+
+  input[class="oil"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="oil"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/oil_off.gif') top left no-repeat;
+    }
+
+    input[class="oil"]:checked + label {
+        background: url('images/res/oil.gif') top left no-repeat;
+    }
+
+  input[class="pigs"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="pigs"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/pigs_off.gif') top left no-repeat;
+    }
+
+    input[class="pigs"]:checked + label {
+        background: url('images/res/pigs.gif') top left no-repeat;
+    }
+
+  input[class="radiation"], input[class="radi"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="radiation"] + label, input[class="radi"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/radiation_off.gif') top left no-repeat;
+    }
+
+    input[class="radiation"]:checked + label,input[class="radi"]:checked + label {
+        background: url('images/res/radiation.gif') top left no-repeat;
+    }
+
+  input[class="rubber"], input[class="rubb"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="rubber"] + label, input[class="rubb"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/rubber_off.gif') top left no-repeat;
+    }
+
+    input[class="rubber"]:checked + label, input[class="rubb"]:checked + label {
+        background: url('images/res/rubber.gif') top left no-repeat;
+    }
+
+  input[class="scholar"], input[class="scho"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="scholar"] + label, input[class="scho"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/scholar_off.gif') top left no-repeat;
+    }
+
+    input[class="scholar"]:checked + label, input[class="scho"]:checked + label {
+        background: url('images/res/scholar.gif') top left no-repeat;
+    }
+
+  input[class="silver"],input[class="silv"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="silver"] + label, input[class="silv"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/silver_off.gif') top left no-repeat;
+    }
+
+    input[class="silver"]:checked + label, input[class="silv"]:checked + label {
+        background: url('images/res/silver.gif') top left no-repeat;
+    }
+
+  input[class="spices"], input[class="spic"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="spices"] + label, input[class="spic"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/spices_off.gif') top left no-repeat;
+    }
+
+    input[class="spices"]:checked + label, input[class="spic"]:checked + label {
+        background: url('images/res/spices.gif') top left no-repeat;
+    }
+
+  input[class="steel"], input[class="stee"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="steel"] + label, input[class="stee"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/steel_off.gif') top left no-repeat;
+    }
+
+    input[class="steel"]:checked + label,input[class="stee"]:checked + label {
+        background: url('images/res/steel.gif') top left no-repeat;
+    }
+
+  input[class="sugar"],input[class="suga"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="sugar"] + label, input[class="suga"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/sugar_off.gif') top left no-repeat;
+    }
+
+    input[class="sugar"]:checked + label,input[class="suga"]:checked + label {
+        background: url('images/res/sugar.gif') top left no-repeat;
+    }
+
+  input[class="uranium"],input[class="uran"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="uranium"] + label , input[class="uran"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/uranium_off.gif') top left no-repeat;
+    }
+
+    input[class="uranium"]:checked + label, input[class="uran"]:checked + label {
+        background: url('images/res/uranium.gif') top left no-repeat;
+    }
+
+  input[class="water"], input[class="wate"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="water"] + label, input[class="wate"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/water_off.gif') top left no-repeat;
+    }
+
+    input[class="water"]:checked + label, input[class="wate"]:checked + label {
+        background: url('images/res/water.gif') top left no-repeat;
+    }
+
+  input[class="wine"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="wine"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/wine_off.gif') top left no-repeat;
+    }
+
+    input[class="wine"]:checked + label {
+        background: url('images/res/wine.gif') top left no-repeat;
+    }
+
+  input[class="wheat"], input[class="whea"] {
+        position: absolute;
+        left: -999em;
+  }
+
+    input[class="wheat"] + label, input[class="whea"] + label {
+        display: block;
+        height: 30px;
+        width: 30px;
+        padding-left: 25px;
+        background: url('images/res/wheat_off.gif') top left no-repeat;
+    }
+
+    input[class="wheat"]:checked + label, input[class="whea"]:checked + label {
+        background: url('images/res/wheat.gif') top left no-repeat;
+    }
+
+    input[class="cbhid"] {
+        position: absolute;
+        left: -999em;
+  }
+
+  .resbuttons {
+    border: 1px #777777 solid;
+    ;
+    background-color: #BA2532;
+    font-family: Arial, san-serif;
+    font-size: 10px;
+    background-position: center center;
+    font-weight: normal;
+    width:45px;
+    color: #ffffff;
+  }
+
+  .restext {
+    font-size: 12px;
+    border: #888888 1px solid;
+    padding-left:1px;
+    padding-bottom: 1px;
+    padding-top: 1px;
+    font-family: Arial, san-serif;
+  }
+  .resTD {
+    border: #888888 1px solid;
+    padding-left:1px;
+    padding-bottom: 1px;
+    padding-top: 1px;
+    font-family: Arial, san-serif;
+  }

@@ -1,0 +1,17 @@
+The reason our calc. fails for IE is that when you copy/paste your nation data, the images on the page show up as nothing.  This means that your resources/bonus resources, and certain other things wont show up in our calc, which gives a big error in all of our calculations.  Firefox will put a placeholder in place of each image which is what the calculator parses in order to grab your nation data.  You can manually hack this by creating a text file with your govt/religion/trades/bonuses in the right position.  <br /><br />
+For government and religion, just place the correct response *in brackets* after the specified text when you paste it.  I&#39;ve shown an example here:  <!--QuoteBegin--></div>
+
+<table border='0' align='center' width='95%' cellpadding='3' cellspacing='1'><tr><td id='QUOTE'><!--QuoteEBegin-->Government Type:&nbsp; <br /><b>[Monarchy]</b><br />&nbsp; Monarchy - Your people are happy... <br /><br />National Religion:&nbsp; <br /><b>[Christianity]</b><br />&nbsp; Christianity - Your people are ...<br /><!--QuoteEnd--></td></tr></table>
+
+<div class='postcolor'><!--QuoteEEnd--><br /><br />For Environment, simply place [ ] between the colon and the value.  It should look something like <!--QuoteBegin--></div><table border='0' align='center' width='95%' cellpadding='3' cellspacing='1'><tr><td id='QUOTE'><!--QuoteEBegin-->National Wonders: ..<br />Environment: <b>[ ]</b> 3.0<br />Global Radiation: ..<!--QuoteEnd--></td></tr></table>
+
+<div class='postcolor'><!--QuoteEEnd--><br /><br />For DEFCON, you need to type out &quot;[ DEFCON # - ]&quot;.  Replace # with your defcon level -- <!--QuoteBegin--></div>
+
+<table border='0' align='center' width='95%' cellpadding='3' cellspacing='1'><tr><td id='QUOTE'><!--QuoteEBegin-->DEFCON Level:&nbsp; <b>[DEFCON 5 - ]</b><br />Threat Level: ..<!--QuoteEnd--></td></tr></table>
+
+<div class='postcolor'><!--QuoteEEnd--><br /><br />For the trades and bonuses, it&#39;s a bit more complicated because admin decided to put a whole bunch of descriptive text in the boxes as well.  You&#39;ll need to do this:<br /><!--QuoteBegin--></div>
+<table border='0' align='center' width='95%' cellpadding='3' cellspacing='1'><tr><td id='QUOTE'><!--QuoteEBegin--><br />Connected Resources:&nbsp; [Aluminum – ] [Cattle – ] ...<br />Bonus Resources:&nbsp; &nbsp;  [Steel – ] [asdf..<br /><!--QuoteEnd--></td></tr></table>
+
+<div class='postcolor'><!--QuoteEEnd--><br />Directly copy and paste what you see above and use it as a template.  Also, note that you need to have a single space in between each resource/bonus resource, along with the space*hyphen*space within each bracket.  So that&#39;s [resource*space*-*space*]*space*[resource...<br /><br />
+
+This takes awhile, but once you do it one time you should save that text for future reference.  Sorry, but there&#39;s no other way for the calculator to parse your information.  </div>

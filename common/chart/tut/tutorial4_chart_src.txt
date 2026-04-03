@@ -1,0 +1,162 @@
+Chart Source
+
+ 
+
+Passing variables to Chart Source
+
+Pass variables to the chart's source in the query part of the source's URL like this:
+
+<HTML>
+<BODY bgcolor="#FFFFFF">
+
+<?php
+include "charts.php";
+echo InsertChart ( "charts.swf", "charts_library", "sample.php?chart_type=bar&user_id=658" );
+?>
+
+</BODY>
+</HTML>
+
+ 
+
+The sample.php source might read the variables and generate the chart's data like this:
+
+<?php
+
+//include charts.php in your script
+include "charts.php";
+
+//read the query variables
+$type =  $_REQUEST['chart_type'];
+$id = $_REQUEST['user_id'];
+
+
+if ( $id==658 ){
+
+   //make the chart type the same as the $type variable for user #658
+   $chart [ 'chart_type' ] = $type;
+
+}else{
+
+   //make it a line chart for all other users
+   $chart [ 'chart_type' ] = "line";
+
+}
+
+//send the chart data to the charts.swf flash file
+SendChartData ( $chart );
+
+?>
+
+ 
+
+Debugging
+
+To debug the source code, type the URL of the source file directly in a browser. If the source script contains errors, then the browser should display them. If it does not contain errors, then the browser would display the numbers and strings related to the chart. Use the browser's View Source command to view the chart expressed in XML code.
+
+ 
+
+Caching
+
+If a chart's source is dynamic (changes over time), some browsers might download only one instance of the source file, cache it, then display the same chart repeatedly. To prevent browsers from caching a dynamic source file, append any unique value to its URL to keep it new. This value must be added programmatically to change with every page reload. This could be the time in microseconds, or any random number:
+
+<HTML>
+<BODY bgcolor="#FFFFFF">
+
+<?php
+include "charts.php";
+echo InsertChart ( "charts.swf", "charts_library", "sample.php?uniqueID=" . uniqid(rand(),true) );
+?>
+
+</BODY>
+</HTML>
+
+ 
+
+Central Chart Source
+
+You may create a different chart source for each chart on your web site like this:
+
+<HTML>
+<BODY bgcolor="#FFFFFF">
+
+<?php
+include "charts.php";
+
+//insert 3 different charts into the web page with 3 different chart sources
+echo InsertChart ( "charts.swf", "charts_library", "sample_1.php" );
+echo InsertChart ( "charts.swf", "charts_library", "sample_2.php" );
+echo InsertChart ( "charts.swf", "charts_library", "sample_3.php" );
+
+?>
+
+</BODY>
+</HTML>
+
+ 
+It's also possible to create one central chart source to generate the data for multiple or all charts like this:
+
+<HTML>
+<BODY bgcolor="#FFFFFF">
+
+<?php
+include "charts.php";
+
+//insert 3 different charts into the web page with one chart source
+echo InsertChart ( "charts.swf", "charts_library", "sample.php?chart_id=1" );
+echo InsertChart ( "charts.swf", "charts_library", "sample.php?chart_id=2" );
+echo InsertChart ( "charts.swf", "charts_library", "sample.php?chart_id=3" );
+
+?>
+
+</BODY>
+</HTML>
+
+ 
+
+The sample.php source might process and generate the chart's data like this:
+
+<?php
+
+//include charts.php in your script
+include "charts.php";
+
+//process the chart for each chart id
+switch ( $_REQUEST['chart_id'] ){
+
+   case 1:
+   $chart [ 'chart_type' ] = "column";
+   break;
+
+   case 2:
+   $chart [ 'chart_type' ] = "bar";
+   break;
+
+   case 3:
+   $chart [ 'chart_type' ] = "line";
+   break;
+
+}
+
+//send the chart data to the charts.swf flash file
+SendChartData ( $chart );
+
+?>
+
+ 
+
+PHP, ASP, CFML, Perl, etc.
+
+PHP/SWF Charts uses PHP to generate charts. However, any scripting language (PHP, Perl, ASP, CFML, etc.) can be used with XML/SWF Charts (the XML version of the same tool.) PHP/SWF Charts and XML/SWF Charts share the same charts.swf file, and the same license. One license runs either or both tools.
+
+See the XML/SWF Charts tutorial for more information.
+
+ 
+
+What Next?
+
+Next, explore the reference section. The reference section lists and describes all the variables used to modify all the chart attributes.
+
+For chart examples, explore the gallery section and click on each chart to see its code.
+
+ 

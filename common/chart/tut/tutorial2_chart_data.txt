@@ -1,0 +1,194 @@
+ 
+
+Chart Data
+
+ 
+
+To create a chart, start by organizing the data in a table like this:
+
+  	2001 	2002 	2003 	2004
+Region A 	5 	10 	30 	63
+Region B 	100 	20 	65 	55
+Region C 	56 	21 	5 	90
+
+ 
+
+Then, translate the table into a PHP multi-dimensional array like this:
+
+<?php
+
+$chart [ 'chart_data' ] = array ( array ( "",         "2001", "2002", "2003", "2004" ),
+                                  array ( "Region A",     5,     10,     30,     63  ),
+                                  array ( "Region B",   100,     20,     65,     55  ),
+                                  array ( "Region C",    56,     21,      5,     90  )
+                                );
+
+?>
+
+Notice that:
+
+    * The array mimics the table exactly. It contains the same number of rows and columns
+    * Even though the top left cell is empty, it's included in the array as an empty string for consistency
+    * All the row and column titles are strings. All the table values are numbers
+    * None of the array values are mapped to keys 
+
+ 
+
+At this point, you can add the array to the chart's source:
+
+<?php
+include "charts.php";
+ 
+//the chart's data
+$chart [ 'chart_data' ] = array ( array ( "",         "2001", "2002", "2003", "2004" ),
+                                  array ( "Region A",     5,     10,     30,     63  ),
+                                  array ( "Region B",   100,     20,     65,     55  ),
+                                  array ( "Region C",    56,     21,      5,     90  )
+                                );
+ 
+//send the new data to charts.swf
+SendChartData ( $chart );
+
+?>
+
+ 
+
+PHP Array
+
+The PHP multi-dimensional array can be created without using the array () function. It can be created by explicitly setting values in it:
+
+<?php
+ 
+//create the PHP multi-dimensional array by explicitly setting values in it
+$chart [ 'chart_data' ][ 0 ][ 0 ] = "";
+$chart [ 'chart_data' ][ 0 ][ 1 ] = "2001";
+$chart [ 'chart_data' ][ 0 ][ 2 ] = "2002";
+$chart [ 'chart_data' ][ 0 ][ 3 ] = "2003";
+$chart [ 'chart_data' ][ 0 ][ 4 ] = "2004";
+$chart [ 'chart_data' ][ 1 ][ 0 ] = "Region A";
+$chart [ 'chart_data' ][ 1 ][ 1 ] = 5;
+$chart [ 'chart_data' ][ 1 ][ 2 ] = 10;
+$chart [ 'chart_data' ][ 1 ][ 3 ] = 30;
+$chart [ 'chart_data' ][ 1 ][ 4 ] = 63;
+$chart [ 'chart_data' ][ 2 ][ 0 ] = "Region B";
+$chart [ 'chart_data' ][ 2 ][ 1 ] = 100;
+$chart [ 'chart_data' ][ 2 ][ 2 ] = 20;
+$chart [ 'chart_data' ][ 2 ][ 3 ] = 65;
+$chart [ 'chart_data' ][ 2 ][ 4 ] = 55;
+$chart [ 'chart_data' ][ 3 ][ 0 ] = "Region C";
+$chart [ 'chart_data' ][ 3 ][ 1 ] = 56;
+$chart [ 'chart_data' ][ 3 ][ 2 ] = 21;
+$chart [ 'chart_data' ][ 3 ][ 3 ] = 5;
+$chart [ 'chart_data' ][ 3 ][ 4 ] = 90;
+
+?>
+
+ 
+
+Here's a script that creates the PHP multi-dimensional array in mixed ways, and generates random chart values:
+
+<?php
+ 
+//create the PHP multi-dimensional array in mixed ways
+$chart [ 'chart_data' ][ 0 ] = array ( "",         "2001", "2002", "2003", "2004" );
+$chart [ 'chart_data' ][ 1 ][ 0 ] = "Region A";
+$chart [ 'chart_data' ][ 2 ][ 0 ] = "Region B";
+$chart [ 'chart_data' ][ 3 ][ 0 ] = "Region C";
+
+for ( $row = 1; $row <= 3; $row++ ) {
+   for ( $col = 1; $col <= 4; $col++ ) {
+      $chart [ 'chart_data' ][ $row ][ $col ] = rand ( 0, 100 );
+   }
+}
+
+?>
+
+ 
+
+For more information about PHP arrays, please see the PHP manual at http://www.php.net.
+
+ 
+
+Databases
+
+If you're accessing the chart data from a database, the number of databases and techniques to access them is too big to cover in detail here. For detailed information about PHP and databases, please see the corresponding section in the PHP manual at http://www.php.net.
+
+Here's one example showing how to get the data from a MySQL database. The example assumes the database called Accounting is already created, and it has a table called Growth that looks like this:
+
+Database: Accounting
+Table: Growth
+
+Region 	Year 	Revenue
+Region A 	2001 	5
+Region A 	2002 	10
+Region A 	2003 	30
+Region A 	2004 	63
+Region B 	2001 	100
+Region B 	2002 	20
+Region B 	2003 	65
+Region B 	2004 	55
+Region C 	2001 	56
+Region C 	2002 	21
+Region C 	2003 	5
+Region C 	2004 	90
+
+ 
+
+The task is to read and organize the data like this table, and create the corresponding PHP multi-dimensional array:
+
+  	2001 	2002 	2003 	2004
+Region A 	5 	10 	30 	63
+Region B 	100 	20 	65 	55
+Region C 	56 	21 	5 	90
+
+ 
+
+<?php
+
+//start the PHP multi-dimensional array and create the region titles
+$chart [ 'chart_data' ][ 0 ][ 0 ] = "";
+$chart [ 'chart_data' ][ 1 ][ 0 ] = "Region A";
+$chart [ 'chart_data' ][ 2 ][ 0 ] = "Region B";
+$chart [ 'chart_data' ][ 3 ][ 0 ] = "Region C";
+
+//connect to the database
+mysql_connect ( "host", "user", "password" );
+mysql_select_db ( "Accounting" );
+
+//get the smallest year to determine which year to start the chart with
+$result = mysql_query ( "SELECT MIN(Year) AS MinYear FROM Growth" );
+$MinYear = mysql_result ( $result, 0, "MinYear" );
+
+//get all the data in the Growth table
+$result = mysql_query ("SELECT * FROM Growth");
+
+//extract the data from the query result one row at a time
+for ( $i=0; $i < mysql_num_rows($result); $i++ ) {
+
+   //determine which row in the PHP array the current data belongs to
+   switch ( mysql_result ( $result, $i, "Region" ) ) {
+      case "Region A":
+      $row = 1;
+      break;
+
+      case "Region B":
+      $row = 2;
+      break;
+
+      case "Region C":
+      $row = 3;
+      break;
+   }
+
+   //determine which column in the PHP array the current data belongs to
+   $col = mysql_result ( $result, $i, "Year") - $MinYear + 1;
+
+   //populate the PHP array with the Year title
+   $chart [ 'chart_data' ][ 0 ][ $col ] = mysql_result ( $result, $i, "Year");
+
+   //populate the PHP array with the revenue data
+   $chart [ 'chart_data' ][ $row ][ $col ] = mysql_result ( $result, $i, "Revenue");
+}
+
+?>
+
