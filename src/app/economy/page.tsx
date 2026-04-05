@@ -4,17 +4,23 @@ import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNationData } from '@/hooks/useNationData';
-import { calculateInfraCost } from '@/lib/calculators/infrastructure';
+import { calculateInfraCost, generateInfraCostCurve } from '@/lib/calculators/infrastructure';
 import { calculatePopulation, infraNeededForCitizens } from '@/lib/calculators/population';
 import { calculateUpkeep } from '@/lib/calculators/upkeep';
 import { calculateHappiness } from '@/lib/calculators/happiness';
 import { calculateCrime } from '@/lib/calculators/crime';
-import { calculateLandCost } from '@/lib/calculators/land';
-import { calculateWarchest } from '@/lib/calculators/warchest';
+import { calculateLandCost, generateLandCostCurve } from '@/lib/calculators/land';
+import { calculateWarchest, generateWarchestProjection } from '@/lib/calculators/warchest';
 import { NumberInput } from '@/components/shared/NumberInput';
 import { ResourceCheckboxGrid } from '@/components/shared/ResourceCheckboxGrid';
 import { formatCurrency, formatNumber, DeltaValue } from '@/components/shared/CurrencyDisplay';
 import { INFRA_MODIFIERS, POPULATION_MODIFIERS, RESOURCE_LAND_COST_DISCOUNTS } from '@/lib/data/resources';
+import { CHART_THEME, TOOLTIP_STYLE, AXIS_TICK } from '@/lib/chart-theme';
+import {
+  LineChart, Line, AreaChart, Area, BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  ReferenceLine, Cell,
+} from 'recharts';
 
 const INFRA_RESOURCE_OPTIONS = Object.entries(INFRA_MODIFIERS).map(([key, mod]) => ({
   key,
@@ -142,6 +148,68 @@ export default function EconomyPage() {
     [wcCash, wcDailyIncome, wcDailyBills, wcWarUpkeep]
   );
 
+  // Chart data
+  const infraChartData = useMemo(
+    () =>
+      infraWanted > 0
+        ? generateInfraCostCurve(
+            infraHave,
+            Math.min(infraWanted, 5000),
+            factories,
+            infraResources,
+            isLoaded ? nation.wonders : []
+          )
+        : [],
+    [infraHave, infraWanted, factories, infraResources]
+  );
+
+  const landChartData = useMemo(
+    () =>
+      landBuy > 0
+        ? generateLandCostCurve(landCurrent, landBuy, peakLand, landResources)
+        : [],
+    [landCurrent, landBuy, peakLand, landResources]
+  );
+
+  const warchestChartData = useMemo(
+    () =>
+      generateWarchestProjection(
+        wcCash,
+        warchestResult.dailyNetIncome,
+        warchestResult.warDailyNet
+      ),
+    [wcCash, warchestResult.dailyNetIncome, warchestResult.warDailyNet]
+  );
+
+  const happinessResult = useMemo(
+    () =>
+      isLoaded
+        ? calculateHappiness({
+            tech: nation.tech,
+            taxRate: nation.taxRate,
+            defcon: nation.defcon,
+            environment: nation.environment,
+            connectedResources: nation.connectedResources,
+            bonusResources: nation.bonusResources,
+            improvements: nation.improvements,
+            ownedWonders: nation.wonders,
+            crimePreventionScore: 435,
+          })
+        : null,
+    [isLoaded]
+  );
+
+  const happinessBreakdownData = useMemo(
+    () =>
+      happinessResult
+        ? happinessResult.breakdown.map((item) => ({
+            source: item.source,
+            value: item.value,
+          }))
+        : [],
+    [happinessResult]
+  );
+
   // ROI calculation
   const dailyIncomeGain = popResult.citizensGained * income;
   const roi =
@@ -247,6 +315,27 @@ export default function EconomyPage() {
               </p>
             </CardContent>
           </Card>
+
+          {infraWanted > 0 && infraChartData.length > 0 && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Cost Per Level</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={infraChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
+                      <XAxis dataKey="level" tick={AXIS_TICK} label={{ value: 'Infrastructure Level', position: 'insideBottom', offset: -2, fill: CHART_THEME.text, fontSize: 12 }} />
+                      <YAxis tick={AXIS_TICK} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                      <Tooltip {...TOOLTIP_STYLE} formatter={(v: unknown) => { const n = typeof v === 'number' ? v : 0; return [`$${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 'Cost/Level']; }} />
+                      <Line type="monotone" dataKey="cost" stroke={CHART_THEME.primary} strokeWidth={2} dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="population" className="space-y-4 mt-4">
@@ -321,19 +410,8 @@ export default function EconomyPage() {
                 <p className="text-sm text-muted-foreground">No nation data loaded. Enter your nation data to see a happiness breakdown.</p>
               </CardContent>
             </Card>
-          ) : (() => {
-            const happinessResult = calculateHappiness({
-              tech: nation.tech,
-              taxRate: nation.taxRate,
-              defcon: nation.defcon,
-              environment: nation.environment,
-              connectedResources: nation.connectedResources,
-              bonusResources: nation.bonusResources,
-              improvements: nation.improvements,
-              ownedWonders: nation.wonders,
-              crimePreventionScore: 435,
-            });
-            return (
+          ) : happinessResult && (
+            <>
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Happiness Breakdown</CardTitle>
@@ -370,8 +448,33 @@ export default function EconomyPage() {
                   </p>
                 </CardContent>
               </Card>
-            );
-          })()}
+
+              {happinessBreakdownData.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Happiness by Source</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={happinessBreakdownData} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
+                          <XAxis type="number" tick={AXIS_TICK} />
+                          <YAxis type="category" dataKey="source" tick={AXIS_TICK} width={160} />
+                          <Tooltip {...TOOLTIP_STYLE} />
+                          <Bar dataKey="value">
+                            {happinessBreakdownData.map((entry, idx) => (
+                              <Cell key={idx} fill={entry.value >= 0 ? CHART_THEME.positive : CHART_THEME.negative} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </>
+          )}
         </TabsContent>
 
         <TabsContent value="crime" className="space-y-4 mt-4">
@@ -529,6 +632,33 @@ export default function EconomyPage() {
               )}
             </CardContent>
           </Card>
+
+          {landBuy > 0 && landChartData.length > 0 && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Cost Per Acre</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={landChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
+                      <XAxis dataKey="level" tick={AXIS_TICK} label={{ value: 'Land (acres)', position: 'insideBottom', offset: -2, fill: CHART_THEME.text, fontSize: 12 }} />
+                      <YAxis tick={AXIS_TICK} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                      <Tooltip
+                        {...TOOLTIP_STYLE}
+                        formatter={(v: unknown, _name: unknown, props: { payload?: { inRebuy?: boolean } }) => {
+                          const n = typeof v === 'number' ? v : 0;
+                          return [`$${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}${props.payload?.inRebuy ? ' (rebuy)' : ''}`, 'Cost/Acre'];
+                        }}
+                      />
+                      <Area type="monotone" dataKey="cost" stroke={CHART_THEME.primary} fill={CHART_THEME.area1} strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* Warchest Tab */}
@@ -657,6 +787,27 @@ export default function EconomyPage() {
                     : `Under-funded — only ${formatNumber((wcCash / warchestResult.recommendedWarchest) * 100, 0)}% of recommended warchest`}
                 </p>
               )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Cash Runway (60 Days)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={warchestChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
+                    <XAxis dataKey="day" tick={AXIS_TICK} label={{ value: 'Days', position: 'insideBottom', offset: -2, fill: CHART_THEME.text, fontSize: 12 }} />
+                    <YAxis tick={AXIS_TICK} tickFormatter={(v) => `$${(v / 1000000).toFixed(1)}M`} />
+                    <Tooltip {...TOOLTIP_STYLE} formatter={(v: unknown, name: unknown) => { const n = typeof v === 'number' ? v : 0; return [`$${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, String(name)]; }} />
+                    <ReferenceLine y={0} stroke={CHART_THEME.negative} strokeDasharray="5 5" />
+                    <Area type="monotone" dataKey="peacetime" stroke={CHART_THEME.primary} fill={CHART_THEME.area1} strokeWidth={2} name="Peacetime" />
+                    <Area type="monotone" dataKey="wartime" stroke={CHART_THEME.secondary} fill={CHART_THEME.area2} strokeWidth={2} name="Wartime" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
