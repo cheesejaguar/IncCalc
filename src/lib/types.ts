@@ -193,3 +193,8 @@ export interface HappinessBreakdownItem {
   source: string;
   value: number;
 }
+
+export interface HappinessResult {
+  total: number;
+  breakdown: HappinessBreakdownItem[];
+}
