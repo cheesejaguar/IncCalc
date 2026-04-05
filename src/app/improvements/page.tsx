@@ -15,6 +15,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { CHART_THEME, TOOLTIP_STYLE, AXIS_TICK } from '@/lib/chart-theme';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Cell,
+} from 'recharts';
 
 export default function ImprovementsPage() {
   const { nation, isLoaded, allResources } = useNationData();
@@ -53,6 +58,14 @@ export default function ImprovementsPage() {
       improvements: nation.improvements,
     });
   }, [nation, isLoaded, allResources]);
+
+  const chartData = useMemo(() => {
+    if (!analysis) return [];
+    return analysis
+      .filter((imp) => imp.canPurchase && imp.incomeChange !== 0)
+      .sort((a, b) => b.incomeChange - a.incomeChange)
+      .map((imp) => ({ name: imp.name, incomeChange: imp.incomeChange }));
+  }, [analysis]);
 
   if (!isLoaded) {
     return (
@@ -125,6 +138,31 @@ export default function ImprovementsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {chartData.length > 0 && (
+        <Card className="mt-4">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Income Impact by Improvement</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div style={{ height: Math.max(200, chartData.length * 28) }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
+                  <XAxis type="number" tick={AXIS_TICK} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                  <YAxis type="category" dataKey="name" tick={AXIS_TICK} width={140} />
+                  <Tooltip {...TOOLTIP_STYLE} formatter={(v) => { const n = Number(v); return isNaN(n) ? ['—', 'Income Change'] : [`$${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}/day`, 'Income Change']; }} />
+                  <Bar dataKey="incomeChange" radius={[0, 4, 4, 0]}>
+                    {chartData.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.incomeChange >= 0 ? CHART_THEME.positive : CHART_THEME.negative} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

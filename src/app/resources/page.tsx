@@ -16,6 +16,11 @@ import {
   MILITARY_MODIFIERS,
 } from '@/lib/data/resources';
 import { computeResourceModifier } from '@/lib/calculators/modifiers';
+import { CHART_THEME, TOOLTIP_STYLE } from '@/lib/chart-theme';
+import {
+  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  ResponsiveContainer, Legend, Tooltip,
+} from 'recharts';
 
 // Premade resource combos
 const PREMADE_COMBOS: Record<string, string[]> = {
@@ -66,6 +71,14 @@ export default function ResourcesPage() {
     () => computeModSummary([...baseResources, ...newResources]),
     [baseResources, newResources]
   );
+
+  const radarData = useMemo(() => [
+    { category: 'Infra Cost', current: currentMods.infraDiscount, proposed: newMods.infraDiscount },
+    { category: 'Population', current: currentMods.popBonus, proposed: newMods.popBonus },
+    { category: 'Upkeep', current: currentMods.upkeepDiscount, proposed: newMods.upkeepDiscount },
+    { category: 'Tech Cost', current: currentMods.techDiscount, proposed: newMods.techDiscount },
+    { category: 'Military', current: currentMods.militaryBonus, proposed: newMods.militaryBonus },
+  ], [currentMods, newMods]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -201,6 +214,28 @@ export default function ResourcesPage() {
                 );
               }
             )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Radar chart */}
+      <Card className="mt-4">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Modifier Comparison</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={radarData}>
+                <PolarGrid stroke={CHART_THEME.grid} />
+                <PolarAngleAxis dataKey="category" tick={{ fill: CHART_THEME.text, fontSize: 11 }} />
+                <PolarRadiusAxis tick={{ fill: CHART_THEME.text, fontSize: 10 }} />
+                <Radar name="Current" dataKey="current" stroke={CHART_THEME.primary} fill={CHART_THEME.area1} fillOpacity={0.5} />
+                <Radar name="Proposed" dataKey="proposed" stroke={CHART_THEME.secondary} fill={CHART_THEME.area2} fillOpacity={0.5} />
+                <Legend wrapperStyle={{ fontSize: 12, color: CHART_THEME.text }} />
+                <Tooltip {...TOOLTIP_STYLE} formatter={(v) => { const n = Number(v); return isNaN(n) ? ['—', ''] : [`${n.toFixed(1)}%`, '']; }} />
+              </RadarChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
