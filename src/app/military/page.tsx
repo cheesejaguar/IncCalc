@@ -24,6 +24,8 @@ import { calculateMobilize } from '@/lib/calculators/mobilize';
 import { calculateSpyOdds, generateSpyOddsChartData, THREAT_MULTIPLIERS } from '@/lib/calculators/spy-odds';
 import { calculateNavy } from '@/lib/calculators/navy';
 import { calculateEquipment } from '@/lib/calculators/equipment';
+import { calculateBattleOdds } from '@/lib/calculators/battle-odds';
+import { calculateNationStrength } from '@/lib/calculators/nation-strength';
 import { NumberInput } from '@/components/shared/NumberInput';
 import { ResourceCheckboxGrid } from '@/components/shared/ResourceCheckboxGrid';
 import { formatCurrency, formatNumber } from '@/components/shared/CurrencyDisplay';
@@ -53,6 +55,8 @@ const COST_RESOURCE_OPTIONS = [
   { key: 'lead', label: 'Lead (-8% tank)' },
 ];
 
+const DEFCON_OPTIONS = [1, 2, 3, 4, 5] as const;
+
 export default function MilitaryPage() {
   const { nation, isLoaded, allMilitaryResources } = useNationData();
 
@@ -78,6 +82,31 @@ export default function MilitaryPage() {
   const [enemyTech, setEnemyTech] = useState(0);
   const [enemyLand, setEnemyLand] = useState(500);
   const [threatLevel, setThreatLevel] = useState<ThreatLevel>('Elevated');
+
+  // Battle Odds state
+  const [atkSoldiers, setAtkSoldiers] = useState(isLoaded ? nation.soldiers : 0);
+  const [atkTanks, setAtkTanks] = useState(isLoaded ? nation.tanks : 0);
+  const [atkTech, setAtkTech] = useState(isLoaded ? nation.tech : 0);
+  const [atkDefcon, setAtkDefcon] = useState<number>(isLoaded ? (nation.defcon || 5) : 5);
+  const [defSoldiers, setDefSoldiers] = useState(0);
+  const [defTanks, setDefTanks] = useState(0);
+  const [defTech, setDefTech] = useState(0);
+  const [defInfra, setDefInfra] = useState(0);
+  const [defLand, setDefLand] = useState(500);
+  const [defDefcon, setDefDefcon] = useState<number>(5);
+  const [isNight, setIsNight] = useState(false);
+
+  // NS Projector state
+  const [nsInfra, setNsInfra] = useState(isLoaded ? nation.infra : 0);
+  const [nsTech, setNsTech] = useState(isLoaded ? nation.tech : 0);
+  const [nsLand, setNsLand] = useState(isLoaded ? nation.purchasedLand : 0);
+  const [nsSoldiers, setNsSoldiers] = useState(isLoaded ? nation.soldiers : 0);
+  const [nsTanksDeployed, setNsTanksDeployed] = useState(isLoaded ? Math.floor(nation.tanks * 0.5) : 0);
+  const [nsTanksDefending, setNsTanksDefending] = useState(isLoaded ? Math.ceil(nation.tanks * 0.5) : 0);
+  const [nsCruiseMissiles, setNsCruiseMissiles] = useState(0);
+  const [nsNukes, setNsNukes] = useState(isLoaded ? nation.nukes : 0);
+  const [nsAircraftStrength, setNsAircraftStrength] = useState(0);
+  const [nsNavyStrength, setNsNavyStrength] = useState(0);
 
   const mobilizeResult = useMemo(
     () =>
@@ -151,6 +180,48 @@ export default function MilitaryPage() {
     [activeNavyResources, existingNukes, nation.improvements, nation.bonusResources, nation.wonders]
   );
 
+  const battleResult = useMemo(
+    () =>
+      calculateBattleOdds({
+        attackerSoldiers: atkSoldiers,
+        attackerTanks: atkTanks,
+        attackerTech: atkTech,
+        attackerDEFCON: atkDefcon,
+        defenderSoldiers: defSoldiers,
+        defenderTanks: defTanks,
+        defenderTech: defTech,
+        defenderInfra: defInfra,
+        defenderLand: defLand,
+        defenderDEFCON: defDefcon,
+        isNightAttack: isNight,
+      }),
+    [atkSoldiers, atkTanks, atkTech, atkDefcon, defSoldiers, defTanks, defTech, defInfra, defLand, defDefcon, isNight]
+  );
+
+  const nsResult = useMemo(
+    () =>
+      calculateNationStrength({
+        infra: nsInfra,
+        tech: nsTech,
+        land: nsLand,
+        soldiers: nsSoldiers,
+        tanksDeployed: nsTanksDeployed,
+        tanksDefending: nsTanksDefending,
+        cruiseMissiles: nsCruiseMissiles,
+        nukes: nsNukes,
+        aircraftStrength: nsAircraftStrength,
+        navyStrength: nsNavyStrength,
+      }),
+    [nsInfra, nsTech, nsLand, nsSoldiers, nsTanksDeployed, nsTanksDefending, nsCruiseMissiles, nsNukes, nsAircraftStrength, nsNavyStrength]
+  );
+
+  const battleSuccessColor =
+    battleResult.successRate >= 60
+      ? 'text-green-400'
+      : battleResult.successRate >= 40
+      ? 'text-yellow-400'
+      : 'text-red-400';
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold">Military Calculator</h1>
@@ -161,6 +232,8 @@ export default function MilitaryPage() {
           <TabsTrigger value="spies">Spy Odds</TabsTrigger>
           <TabsTrigger value="navy">Navy</TabsTrigger>
           <TabsTrigger value="equipment">Equipment</TabsTrigger>
+          <TabsTrigger value="battle">Battle Odds</TabsTrigger>
+          <TabsTrigger value="ns">NS Projector</TabsTrigger>
         </TabsList>
 
         <TabsContent value="mobilize" className="space-y-4 mt-4">
@@ -451,6 +524,325 @@ export default function MilitaryPage() {
                   No uranium — nuke upkeep doubled
                 </p>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Battle Odds Tab */}
+        <TabsContent value="battle" className="space-y-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Attacker</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <NumberInput
+                    id="atk-soldiers"
+                    label="Soldiers"
+                    value={atkSoldiers}
+                    onChange={setAtkSoldiers}
+                    min={0}
+                  />
+                  <NumberInput
+                    id="atk-tanks"
+                    label="Tanks"
+                    value={atkTanks}
+                    onChange={setAtkTanks}
+                    min={0}
+                  />
+                  <NumberInput
+                    id="atk-tech"
+                    label="Technology"
+                    value={atkTech}
+                    onChange={setAtkTech}
+                    min={0}
+                  />
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">DEFCON</Label>
+                    <Select
+                      value={String(atkDefcon)}
+                      onValueChange={(v) => setAtkDefcon(Number(v))}
+                    >
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DEFCON_OPTIONS.map((d) => (
+                          <SelectItem key={d} value={String(d)}>
+                            DEFCON {d}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Defender</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <NumberInput
+                    id="def-soldiers"
+                    label="Soldiers"
+                    value={defSoldiers}
+                    onChange={setDefSoldiers}
+                    min={0}
+                  />
+                  <NumberInput
+                    id="def-tanks"
+                    label="Tanks"
+                    value={defTanks}
+                    onChange={setDefTanks}
+                    min={0}
+                  />
+                  <NumberInput
+                    id="def-tech"
+                    label="Technology"
+                    value={defTech}
+                    onChange={setDefTech}
+                    min={0}
+                  />
+                  <NumberInput
+                    id="def-infra"
+                    label="Infrastructure"
+                    value={defInfra}
+                    onChange={setDefInfra}
+                    min={0}
+                  />
+                  <NumberInput
+                    id="def-land"
+                    label="Land"
+                    value={defLand}
+                    onChange={setDefLand}
+                    min={0}
+                  />
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">DEFCON</Label>
+                    <Select
+                      value={String(defDefcon)}
+                      onValueChange={(v) => setDefDefcon(Number(v))}
+                    >
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DEFCON_OPTIONS.map((d) => (
+                          <SelectItem key={d} value={String(d)}>
+                            DEFCON {d}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Time of Day</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsNight(false)}
+                  className={`px-4 py-1.5 rounded text-sm font-medium border transition-colors ${
+                    !isNight
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'border-border text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Day
+                </button>
+                <button
+                  onClick={() => setIsNight(true)}
+                  className={`px-4 py-1.5 rounded text-sm font-medium border transition-colors ${
+                    isNight
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'border-border text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Night (+5% attacker tech)
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Results</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center">
+                <p className={`text-5xl font-bold font-mono ${battleSuccessColor}`}>
+                  {battleResult.successRate.toFixed(1)}%
+                </p>
+                <p className={`text-sm font-medium mt-1 ${battleSuccessColor}`}>
+                  {battleResult.attackerAdvantage}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
+                <span className="text-muted-foreground">Attacker strength</span>
+                <span className="font-mono font-medium">{formatNumber(battleResult.attackerStrength, 0)}</span>
+                <span className="text-muted-foreground">Defender strength</span>
+                <span className="font-mono font-medium">{formatNumber(battleResult.defenderStrength, 0)}</span>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* NS Projector Tab */}
+        <TabsContent value="ns" className="space-y-4 mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Nation Strength Inputs</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <NumberInput
+                  id="ns-infra"
+                  label="Infrastructure"
+                  value={nsInfra}
+                  onChange={setNsInfra}
+                  min={0}
+                />
+                <NumberInput
+                  id="ns-tech"
+                  label="Technology"
+                  value={nsTech}
+                  onChange={setNsTech}
+                  min={0}
+                />
+                <NumberInput
+                  id="ns-land"
+                  label="Land (purchased)"
+                  value={nsLand}
+                  onChange={setNsLand}
+                  min={0}
+                />
+                <NumberInput
+                  id="ns-soldiers"
+                  label="Soldiers"
+                  value={nsSoldiers}
+                  onChange={setNsSoldiers}
+                  min={0}
+                />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <NumberInput
+                  id="ns-tanks-deployed"
+                  label="Tanks Deployed"
+                  value={nsTanksDeployed}
+                  onChange={setNsTanksDeployed}
+                  min={0}
+                />
+                <NumberInput
+                  id="ns-tanks-defending"
+                  label="Tanks Defending"
+                  value={nsTanksDefending}
+                  onChange={setNsTanksDefending}
+                  min={0}
+                />
+                <NumberInput
+                  id="ns-cm"
+                  label="Cruise Missiles"
+                  value={nsCruiseMissiles}
+                  onChange={setNsCruiseMissiles}
+                  min={0}
+                />
+                <NumberInput
+                  id="ns-nukes"
+                  label="Nuclear Weapons"
+                  value={nsNukes}
+                  onChange={setNsNukes}
+                  min={0}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <NumberInput
+                  id="ns-aircraft"
+                  label="Aircraft Strength (sum)"
+                  value={nsAircraftStrength}
+                  onChange={setNsAircraftStrength}
+                  min={0}
+                />
+                <NumberInput
+                  id="ns-navy"
+                  label="Navy Strength (sum)"
+                  value={nsNavyStrength}
+                  onChange={setNsNavyStrength}
+                  min={0}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Nation Strength</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center">
+                <p className="text-5xl font-bold font-mono text-primary">
+                  {formatNumber(nsResult.nationStrength, 2)}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">Nation Strength</p>
+              </div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
+                <span className="text-muted-foreground">War range (can attack)</span>
+                <span className="font-mono font-medium">
+                  {formatNumber(nsResult.warRangeMin, 2)} — {formatNumber(nsResult.warRangeMax, 2)}
+                </span>
+                <span className="text-muted-foreground">Nations that can attack you</span>
+                <span className="font-mono text-xs text-muted-foreground">
+                  NS between {formatNumber(nsResult.nationStrength / 1.33, 2)} and {formatNumber(nsResult.nationStrength / 0.75, 2)}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Breakdown</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left px-4 py-2 font-medium text-muted-foreground">Component</th>
+                    <th className="text-right px-4 py-2 font-medium text-muted-foreground">Value</th>
+                    <th className="text-right px-4 py-2 font-medium text-muted-foreground">% of Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {nsResult.breakdown.map((row) => (
+                    <tr key={row.component} className="border-b border-border/50 last:border-0">
+                      <td className="px-4 py-1.5">{row.component}</td>
+                      <td className="px-4 py-1.5 text-right font-mono">{formatNumber(row.value, 2)}</td>
+                      <td className="px-4 py-1.5 text-right font-mono text-muted-foreground">
+                        {nsResult.nationStrength > 0
+                          ? `${((row.value / nsResult.nationStrength) * 100).toFixed(1)}%`
+                          : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-border">
+                    <td className="px-4 pt-2 pb-3 font-semibold">Total</td>
+                    <td className="px-4 pt-2 pb-3 text-right font-mono font-bold">
+                      {formatNumber(nsResult.nationStrength, 2)}
+                    </td>
+                    <td className="px-4 pt-2 pb-3 text-right font-mono text-muted-foreground">100%</td>
+                  </tr>
+                </tfoot>
+              </table>
             </CardContent>
           </Card>
         </TabsContent>

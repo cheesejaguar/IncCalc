@@ -9,10 +9,12 @@ import { calculatePopulation, infraNeededForCitizens } from '@/lib/calculators/p
 import { calculateUpkeep } from '@/lib/calculators/upkeep';
 import { calculateHappiness } from '@/lib/calculators/happiness';
 import { calculateCrime } from '@/lib/calculators/crime';
+import { calculateLandCost } from '@/lib/calculators/land';
+import { calculateWarchest } from '@/lib/calculators/warchest';
 import { NumberInput } from '@/components/shared/NumberInput';
 import { ResourceCheckboxGrid } from '@/components/shared/ResourceCheckboxGrid';
 import { formatCurrency, formatNumber, DeltaValue } from '@/components/shared/CurrencyDisplay';
-import { INFRA_MODIFIERS, POPULATION_MODIFIERS } from '@/lib/data/resources';
+import { INFRA_MODIFIERS, POPULATION_MODIFIERS, RESOURCE_LAND_COST_DISCOUNTS } from '@/lib/data/resources';
 
 const INFRA_RESOURCE_OPTIONS = Object.entries(INFRA_MODIFIERS).map(([key, mod]) => ({
   key,
@@ -22,6 +24,11 @@ const INFRA_RESOURCE_OPTIONS = Object.entries(INFRA_MODIFIERS).map(([key, mod]) 
 const POP_RESOURCE_OPTIONS = Object.entries(POPULATION_MODIFIERS).map(([key, mod]) => ({
   key,
   label: `${mod.name} (+${(mod.value * 100).toFixed(1)}%)`,
+}));
+
+const LAND_RESOURCE_OPTIONS = Object.entries(RESOURCE_LAND_COST_DISCOUNTS).map(([key, value]) => ({
+  key,
+  label: `${key.charAt(0).toUpperCase() + key.slice(1)} (-${(value * 100).toFixed(0)}%)`,
 }));
 
 export default function EconomyPage() {
@@ -52,6 +59,24 @@ export default function EconomyPage() {
   const [ns, setNs] = useState(isLoaded ? nation.nationStrength : 1);
   const [laborCamps, setLaborCamps] = useState(isLoaded ? (nation.improvements['Labor Camps'] ?? 0) : 0);
   const [income, setIncome] = useState(isLoaded ? nation.income : 0);
+
+  // Land tab state
+  const [landCurrent, setLandCurrent] = useState(isLoaded ? nation.land : 0);
+  const [landBuy, setLandBuy] = useState(100);
+  const [peakLand, setPeakLand] = useState(isLoaded ? nation.land : 0);
+  const [landResources, setLandResources] = useState<string[]>(
+    isLoaded
+      ? allResources.filter((r) => r in RESOURCE_LAND_COST_DISCOUNTS)
+      : []
+  );
+
+  // Warchest tab state
+  const [wcCash, setWcCash] = useState(isLoaded ? nation.cash : 0);
+  const [wcDailyIncome, setWcDailyIncome] = useState(
+    isLoaded ? nation.income * nation.citizens : 0
+  );
+  const [wcDailyBills, setWcDailyBills] = useState(0);
+  const [wcWarUpkeep, setWcWarUpkeep] = useState(0);
 
   // Calculate results
   const infraResult = useMemo(
@@ -95,12 +120,44 @@ export default function EconomyPage() {
     [infraHave, infraWanted, tech, ns, laborCamps, infraResources]
   );
 
+  const landResult = useMemo(
+    () =>
+      calculateLandCost({
+        currentLand: landCurrent,
+        purchaseAmount: landBuy,
+        peakLand,
+        activeResources: landResources,
+      }),
+    [landCurrent, landBuy, peakLand, landResources]
+  );
+
+  const warchestResult = useMemo(
+    () =>
+      calculateWarchest({
+        currentCash: wcCash,
+        dailyIncome: wcDailyIncome,
+        dailyBills: wcDailyBills,
+        warMilitaryUpkeep: wcWarUpkeep,
+      }),
+    [wcCash, wcDailyIncome, wcDailyBills, wcWarUpkeep]
+  );
+
   // ROI calculation
   const dailyIncomeGain = popResult.citizensGained * income;
   const roi =
     dailyIncomeGain - upkeepResult.billIncrease > 0
       ? infraResult.totalCost / (dailyIncomeGain - upkeepResult.billIncrease)
       : -1;
+
+  // Warchest color helper
+  const warchestColor =
+    warchestResult.recommendedWarchest <= 0
+      ? 'text-muted-foreground'
+      : wcCash >= warchestResult.recommendedWarchest
+      ? 'text-green-400'
+      : wcCash >= warchestResult.recommendedWarchest * 0.5
+      ? 'text-yellow-400'
+      : 'text-red-400';
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -112,6 +169,8 @@ export default function EconomyPage() {
           <TabsTrigger value="population">Population</TabsTrigger>
           <TabsTrigger value="happiness">Happiness</TabsTrigger>
           <TabsTrigger value="crime">Crime Index</TabsTrigger>
+          <TabsTrigger value="land">Land</TabsTrigger>
+          <TabsTrigger value="warchest">Warchest</TabsTrigger>
         </TabsList>
 
         <TabsContent value="infra" className="space-y-4 mt-4">
@@ -396,6 +455,210 @@ export default function EconomyPage() {
               </>
             );
           })()}
+        </TabsContent>
+
+        {/* Land Purchase Tab */}
+        <TabsContent value="land" className="space-y-4 mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Land Purchase</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <NumberInput
+                  id="land-current"
+                  label="Current Land"
+                  value={landCurrent}
+                  onChange={setLandCurrent}
+                  min={0}
+                />
+                <NumberInput
+                  id="land-buy"
+                  label="Purchase Amount"
+                  value={landBuy}
+                  onChange={setLandBuy}
+                  min={1}
+                />
+                <NumberInput
+                  id="land-peak"
+                  label="Peak Land (ever owned)"
+                  value={peakLand}
+                  onChange={setPeakLand}
+                  min={0}
+                />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-2">Land Cost Discount Resources</p>
+                <ResourceCheckboxGrid
+                  availableResources={LAND_RESOURCE_OPTIONS}
+                  selected={landResources}
+                  onChange={setLandResources}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Results</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <p>
+                Total cost for <strong>{formatNumber(landBuy, 0)}</strong> acres:{' '}
+                <strong>{formatCurrency(landResult.totalCost)}</strong>
+              </p>
+              <p>
+                Cost per acre (at current land):{' '}
+                <strong>{formatCurrency(landResult.costPerLevel)}</strong>
+              </p>
+              <p>
+                Resource modifier:{' '}
+                <strong>{((1 - landResult.modifier) * 100).toFixed(0)}% discount</strong>
+                {' '}(multiplier: {landResult.modifier.toFixed(3)})
+              </p>
+              <p>
+                Peak rebuy discount (50% off up to peak):{' '}
+                <strong className={landResult.peakRebuyApplied ? 'text-green-400' : 'text-muted-foreground'}>
+                  {landResult.peakRebuyApplied ? 'Applied' : 'Not applicable'}
+                </strong>
+              </p>
+              {landResult.peakRebuyApplied && (
+                <p className="text-xs text-muted-foreground">
+                  Rebuy discount applies until you reach {formatNumber(peakLand, 0)} acres.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Warchest Tab */}
+        <TabsContent value="warchest" className="space-y-4 mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Warchest Calculator</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <NumberInput
+                  id="wc-cash"
+                  label="Current Cash ($)"
+                  value={wcCash}
+                  onChange={setWcCash}
+                  min={0}
+                  step={1000}
+                />
+                <NumberInput
+                  id="wc-income"
+                  label="Daily Income ($)"
+                  value={wcDailyIncome}
+                  onChange={setWcDailyIncome}
+                  min={0}
+                  step={1000}
+                />
+                <NumberInput
+                  id="wc-bills"
+                  label="Daily Bills ($)"
+                  value={wcDailyBills}
+                  onChange={setWcDailyBills}
+                  min={0}
+                  step={1000}
+                />
+                <NumberInput
+                  id="wc-war-upkeep"
+                  label="War Military Upkeep ($)"
+                  value={wcWarUpkeep}
+                  onChange={setWcWarUpkeep}
+                  min={0}
+                  step={1000}
+                />
+              </div>
+              {isLoaded && (
+                <p className="text-xs text-muted-foreground">
+                  Daily income pre-populated as income/citizen ({formatCurrency(nation.income)}) &times; citizens ({formatNumber(nation.citizens, 0)}).
+                  Edit as needed.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Peacetime</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                  <span className="text-muted-foreground">Daily net income</span>
+                  <span className={`font-mono font-medium ${warchestResult.dailyNetIncome >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {warchestResult.dailyNetIncome >= 0 ? '+' : ''}{formatCurrency(warchestResult.dailyNetIncome)}
+                  </span>
+                  <span className="text-muted-foreground">Days of bills (cash only)</span>
+                  <span className="font-mono font-medium">
+                    {isFinite(warchestResult.daysOfBillsSustainable)
+                      ? formatNumber(warchestResult.daysOfBillsSustainable, 1)
+                      : '∞'} days
+                  </span>
+                  <span className="text-muted-foreground">Days until broke</span>
+                  <span className={`font-mono font-medium ${isFinite(warchestResult.daysUntilBroke) && warchestResult.daysUntilBroke < 30 ? 'text-red-400' : 'text-green-400'}`}>
+                    {isFinite(warchestResult.daysUntilBroke)
+                      ? `${formatNumber(warchestResult.daysUntilBroke, 1)} days`
+                      : 'Never (net positive)'}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Wartime</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                  <span className="text-muted-foreground">War daily net</span>
+                  <span className={`font-mono font-medium ${warchestResult.warDailyNet >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {warchestResult.warDailyNet >= 0 ? '+' : ''}{formatCurrency(warchestResult.warDailyNet)}
+                  </span>
+                  <span className="text-muted-foreground">War days sustainable</span>
+                  <span className="font-mono font-medium">
+                    {isFinite(warchestResult.warDaysOfBills)
+                      ? formatNumber(warchestResult.warDaysOfBills, 1)
+                      : '∞'} days
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Recommendation</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                <span className="text-muted-foreground">Recommended warchest</span>
+                <span className="font-mono font-medium">
+                  {formatCurrency(warchestResult.recommendedWarchest)}
+                </span>
+                <span className="text-muted-foreground">(30 days of war bills)</span>
+                <span className="text-muted-foreground text-xs">
+                  {formatCurrency(wcDailyBills + wcWarUpkeep)}/day &times; 30
+                </span>
+                <span className="text-muted-foreground">Your cash</span>
+                <span className={`font-mono font-bold text-base ${warchestColor}`}>
+                  {formatCurrency(wcCash)}
+                </span>
+              </div>
+              {warchestResult.recommendedWarchest > 0 && (
+                <p className={`font-medium mt-1 ${warchestColor}`}>
+                  {wcCash >= warchestResult.recommendedWarchest
+                    ? `Fully funded — ${formatNumber((wcCash / warchestResult.recommendedWarchest) * 100, 0)}% of recommended warchest`
+                    : wcCash >= warchestResult.recommendedWarchest * 0.5
+                    ? `Partially funded — ${formatNumber((wcCash / warchestResult.recommendedWarchest) * 100, 0)}% of recommended warchest`
+                    : `Under-funded — only ${formatNumber((wcCash / warchestResult.recommendedWarchest) * 100, 0)}% of recommended warchest`}
+                </p>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
