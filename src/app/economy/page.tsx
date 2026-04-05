@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { HelpTip } from '@/components/shared/HelpTip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNationData } from '@/hooks/useNationData';
 import { calculateInfraCost, generateInfraCostCurve } from '@/lib/calculators/infrastructure';
@@ -271,12 +272,13 @@ export default function EconomyPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Infrastructure Purchase</CardTitle>
+              <CardDescription>Calculate the cost of purchasing infrastructure levels. Costs increase at tier breakpoints.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <NumberInput id="infra-have" label="Current Infra" value={infraHave} onChange={setInfraHave} min={0} />
                 <NumberInput id="infra-wanted" label="Amount to Buy" value={infraWanted} onChange={(v) => setInfraWanted(Math.min(v, 5000))} min={0} max={5000} />
-                <NumberInput id="factories" label="Factories" value={factories} onChange={setFactories} min={0} max={5} />
+                <NumberInput id="factories" label={<>Factories <HelpTip term="Factories" /></>} value={factories} onChange={setFactories} min={0} max={5} />
                 <NumberInput id="income" label="Income/Citizen" value={income} onChange={setIncome} min={0} step={0.01} />
               </div>
 
@@ -368,6 +370,7 @@ export default function EconomyPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Population Growth</CardTitle>
+              <CardDescription>Estimate population growth from infrastructure purchases. Modified by Clinics, Hospitals, and resources.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -441,6 +444,7 @@ export default function EconomyPage() {
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Happiness Breakdown</CardTitle>
+                  <CardDescription>Breakdown of all factors affecting your population&apos;s happiness. Each point of happiness adds $2 per citizen per day to base income.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <table className="w-full text-sm">
@@ -531,6 +535,7 @@ export default function EconomyPage() {
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-base">Crime Index</CardTitle>
+                    <CardDescription>Your crime prevention score determines the crime level, which affects upkeep costs and happiness.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm">
                     <div className="grid grid-cols-2 gap-x-6 gap-y-2">
@@ -593,6 +598,7 @@ export default function EconomyPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Land Purchase</CardTitle>
+              <CardDescription>Calculate land purchase costs. Land below your peak is 50% cheaper to rebuy.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -612,7 +618,7 @@ export default function EconomyPage() {
                 />
                 <NumberInput
                   id="land-peak"
-                  label="Peak Land (ever owned)"
+                  label={<><HelpTip term="Peak Land" variant="underline">Peak Land</HelpTip> (ever owned)</>}
                   value={peakLand}
                   onChange={setPeakLand}
                   min={0}
@@ -694,6 +700,7 @@ export default function EconomyPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Warchest Calculator</CardTitle>
+              <CardDescription>How long your cash reserves can sustain daily bills. Recommended minimum: 30 days of wartime bills.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -723,7 +730,7 @@ export default function EconomyPage() {
                 />
                 <NumberInput
                   id="wc-war-upkeep"
-                  label="War Military Upkeep ($)"
+                  label={<><HelpTip term="Upkeep" variant="underline">War Military Upkeep</HelpTip> ($)</>}
                   value={wcWarUpkeep}
                   onChange={setWcWarUpkeep}
                   min={0}
@@ -852,10 +859,7 @@ export default function EconomyPage() {
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Tax Rate Optimizer</CardTitle>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Finds the tax rate that maximizes daily income. Higher taxes collect more per citizen
-                    but reduce happiness, which lowers base income.
-                  </p>
+                  <CardDescription>Models the tradeoff between tax rate and happiness. Higher taxes collect more but reduce happiness, which lowers base citizen income.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
