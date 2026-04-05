@@ -130,6 +130,16 @@ export function calculateImprovementAnalysis(
       if (currentCount >= def.maxCount) canPurchase = false;
     }
 
+    // Check data-driven prerequisites
+    if (canPurchase && def.prerequisites.length > 0) {
+      for (const prereq of def.prerequisites) {
+        if ((improvements[prereq] ?? 0) < 1) {
+          canPurchase = false;
+          break;
+        }
+      }
+    }
+
     if (!canPurchase) {
       incChange = 0;
     }
