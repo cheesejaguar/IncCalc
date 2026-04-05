@@ -24,8 +24,9 @@ import { calculateMobilize } from '@/lib/calculators/mobilize';
 import { calculateSpyOdds, generateSpyOddsChartData, THREAT_MULTIPLIERS } from '@/lib/calculators/spy-odds';
 import { calculateNavy } from '@/lib/calculators/navy';
 import { calculateEquipment } from '@/lib/calculators/equipment';
-import { calculateBattleOdds } from '@/lib/calculators/battle-odds';
+import { calculateBattleOdds, generateBattleOddsCurve } from '@/lib/calculators/battle-odds';
 import { calculateNationStrength } from '@/lib/calculators/nation-strength';
+import { CHART_THEME, TOOLTIP_STYLE, AXIS_TICK } from '@/lib/chart-theme';
 import { NumberInput } from '@/components/shared/NumberInput';
 import { ResourceCheckboxGrid } from '@/components/shared/ResourceCheckboxGrid';
 import { formatCurrency, formatNumber } from '@/components/shared/CurrencyDisplay';
@@ -39,6 +40,11 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  ReferenceLine,
+  PieChart,
+  Pie,
+  Cell,
+  type PieLabelRenderProps,
 } from 'recharts';
 
 const MILITARY_RESOURCE_OPTIONS = Object.entries(MILITARY_MODIFIERS)
@@ -56,6 +62,8 @@ const COST_RESOURCE_OPTIONS = [
 ];
 
 const DEFCON_OPTIONS = [1, 2, 3, 4, 5] as const;
+
+const PIE_COLORS = ['#B92432', '#6b7280', '#9ca3af', '#d4d4d8', '#4b5563', '#374151', '#a3a3a3', '#525252', '#737373', '#e5e5e5'];
 
 export default function MilitaryPage() {
   const { nation, isLoaded, allMilitaryResources } = useNationData();
@@ -215,6 +223,32 @@ export default function MilitaryPage() {
     [nsInfra, nsTech, nsLand, nsSoldiers, nsTanksDeployed, nsTanksDefending, nsCruiseMissiles, nsNukes, nsAircraftStrength, nsNavyStrength]
   );
 
+  const battleChartData = useMemo(
+    () =>
+      generateBattleOddsCurve(
+        {
+          attackerTanks: atkTanks,
+          attackerTech: atkTech,
+          attackerDEFCON: atkDefcon,
+          defenderSoldiers: defSoldiers,
+          defenderTanks: defTanks,
+          defenderTech: defTech,
+          defenderInfra: defInfra,
+          defenderLand: defLand,
+          defenderDEFCON: defDefcon,
+          isNightAttack: isNight,
+        },
+        20000,
+        500
+      ),
+    [atkTanks, atkTech, atkDefcon, defSoldiers, defTanks, defTech, defInfra, defLand, defDefcon, isNight]
+  );
+
+  const nsBreakdownData = useMemo(
+    () => nsResult.breakdown.filter((row) => row.value > 0),
+    [nsResult.breakdown]
+  );
+
   const battleSuccessColor =
     battleResult.successRate >= 60
       ? 'text-green-400'
@@ -338,26 +372,26 @@ export default function MilitaryPage() {
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
                     <XAxis
                       dataKey="enemySpies"
-                      label={{ value: 'Enemy Spies', position: 'bottom', fill: '#999', fontSize: 12 }}
-                      tick={{ fill: '#999', fontSize: 11 }}
+                      label={{ value: 'Enemy Spies', position: 'bottom', fill: CHART_THEME.text, fontSize: 12 }}
+                      tick={AXIS_TICK}
                     />
                     <YAxis
                       domain={[0, 100]}
-                      label={{ value: 'Success %', angle: -90, position: 'insideLeft', fill: '#999', fontSize: 12 }}
-                      tick={{ fill: '#999', fontSize: 11 }}
+                      label={{ value: 'Success %', angle: -90, position: 'insideLeft', fill: CHART_THEME.text, fontSize: 12 }}
+                      tick={AXIS_TICK}
                     />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
+                      {...TOOLTIP_STYLE}
                       labelFormatter={(v) => `Enemy Spies: ${v}`}
                       formatter={(v) => [`${v}%`, 'Success Rate']}
                     />
                     <Line
                       type="monotone"
                       dataKey="successRate"
-                      stroke="#22c55e"
+                      stroke={CHART_THEME.positive}
                       strokeWidth={2}
                       dot={false}
                     />
@@ -695,6 +729,26 @@ export default function MilitaryPage() {
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Success Rate vs Attacker Soldiers</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={battleChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
+                    <XAxis dataKey="soldiers" tick={AXIS_TICK} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
+                    <YAxis domain={[0, 100]} tick={AXIS_TICK} tickFormatter={(v) => `${v}%`} />
+                    <Tooltip {...TOOLTIP_STYLE} labelFormatter={(v) => `Soldiers: ${Number(v).toLocaleString()}`} formatter={(v) => [`${Number(v)}%`, 'Success Rate']} />
+                    <ReferenceLine y={50} stroke={CHART_THEME.secondary} strokeDasharray="5 5" label={{ value: '50%', fill: CHART_THEME.text, fontSize: 11 }} />
+                    <Line type="monotone" dataKey="successRate" stroke={CHART_THEME.primary} strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* NS Projector Tab */}
@@ -845,6 +899,42 @@ export default function MilitaryPage() {
               </table>
             </CardContent>
           </Card>
+
+          {nsBreakdownData.length > 0 && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Strength Composition</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={nsBreakdownData}
+                        dataKey="value"
+                        nameKey="component"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={90}
+                        label={(props: PieLabelRenderProps) => {
+                          const entry = props.index !== undefined ? nsBreakdownData[props.index] : null;
+                          const comp = entry?.component ?? '';
+                          const pct = typeof props.percent === 'number' ? props.percent : 0;
+                          return `${comp} ${(pct * 100).toFixed(0)}%`;
+                        }}
+                        labelLine={false}
+                      >
+                        {nsBreakdownData.map((_, idx) => (
+                          <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [Number(v).toLocaleString(undefined, {maximumFractionDigits: 1}), 'NS']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>
