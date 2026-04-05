@@ -142,6 +142,7 @@ export interface MobilizeInput {
   barracks: number;
   activeResources: string[];
   defcon: number;
+  factories: number;
 }
 
 export interface MobilizeResult {

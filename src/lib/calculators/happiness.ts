@@ -15,6 +15,7 @@ export interface HappinessInput {
   improvements: Record<string, number>;
   ownedWonders: string[];
   crimePreventionScore: number;
+  threatLevel?: string;
 }
 
 export type { HappinessResult };
@@ -86,6 +87,22 @@ export function calculateHappiness(input: HappinessInput): HappinessResult {
       source: `DEFCON ${input.defcon}`,
       value: defconData.happiness,
     });
+  }
+
+  // Threat Level
+  const THREAT_HAPPINESS: Record<string, number> = {
+    'Low': 0,
+    'Guarded': -0.5,
+    'Elevated': -1.0,
+    'High': -1.5,
+    'Severe': -2.0,
+  };
+
+  if (input.threatLevel) {
+    const threatPenalty = THREAT_HAPPINESS[input.threatLevel] ?? 0;
+    if (threatPenalty !== 0) {
+      breakdown.push({ source: `Threat Level (${input.threatLevel})`, value: threatPenalty });
+    }
   }
 
   // Environment

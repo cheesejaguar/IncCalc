@@ -126,6 +126,7 @@ export default function MilitaryPage() {
         barracks,
         activeResources: milResources,
         defcon: nation.defcon || 5,
+        factories: nation.improvements?.['Factories'] ?? 0,
       }),
     [citizens, currentSoldiers, currentTanks, guerillaCamps, barracks, milResources, nation.defcon]
   );

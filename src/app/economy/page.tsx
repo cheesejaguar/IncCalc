@@ -497,6 +497,8 @@ export default function EconomyPage() {
               jails: nation.improvements['Jails'] ?? 0,
               prisons: nation.improvements['Prisons'] ?? 0,
               rehabFacilities: nation.improvements['Rehabilitation Facilities'] ?? 0,
+              government: nation.government,
+              laborCamps: nation.improvements['Labor Camps'] ?? 0,
             });
             return (
               <>

@@ -11,6 +11,8 @@ export interface CrimeInput {
   jails: number;          // count of Jails (each holds 500 criminals)
   prisons: number;        // count of Prisons (each holds 5000 criminals)
   rehabFacilities: number; // count of Rehabilitation Facilities
+  government: string;     // government type name
+  laborCamps: number;     // count of Labor Camps (each holds 200 criminals)
 }
 
 export interface CrimeResult {
@@ -23,15 +25,27 @@ export interface CrimeResult {
   criminalHappinessPenalty: number;
 }
 
+const GOVERNMENT_CRIME_MODIFIERS: Record<string, number> = {
+  'Anarchy': -50,
+  'Capitalist': 10,
+  'Democracy': 20,
+  'Monarchy': 40,
+  'Communist': 50,
+  'Revolutionary Government': 50,
+  'Federal Government': 60,
+  'Republic': 65,
+  'Dictatorship': 75,
+  'Totalitarian State': 90,
+  'Transitional': 100,
+};
+
 /**
  * Calculate the tax crime modifier.
- * At tax ≤ 20%: modifier = 1.0
- * Above 20%: decreases proportionally.
- * Approximation: taxCrimeMod = max(0, 1 - (taxRate - 20) / 100)
+ * 10% tax → 0.40, 15% → 0.35, 20% → 0.30, 25% → 0.25, 30% → 0.20
+ * Formula: (50 - taxRate) / 100
  */
 function getTaxCrimeMod(taxRate: number): number {
-  if (taxRate <= 20) return 1.0;
-  return Math.max(0, 1 - (taxRate - 20) / 100);
+  return Math.max(0, (50 - taxRate) / 100);
 }
 
 /**
@@ -42,12 +56,14 @@ function getTaxCrimeMod(taxRate: number): number {
  *   + ((policeHQ*1.5 + schools*3 + universities*10) * taxCrimeMod * 12)
  *   + (infra / 100)
  *   + genCrimeMod
+ *   + govCrimeMod
  *
  * Where genCrimeMod = max(400 - citizens/500, -200)
  */
 export function calculateCrime(input: CrimeInput): CrimeResult {
   const taxCrimeMod = getTaxCrimeMod(input.taxRate);
   const genCrimeMod = Math.max(400 - input.citizens / 500, -200);
+  const govCrimeMod = GOVERNMENT_CRIME_MODIFIERS[input.government] ?? 0;
 
   const preventionScore =
     (input.literacyRate / 100) * 80 +
@@ -55,7 +71,8 @@ export function calculateCrime(input: CrimeInput): CrimeResult {
       taxCrimeMod *
       12 +
     input.infra / 100 +
-    genCrimeMod;
+    genCrimeMod +
+    govCrimeMod;
 
   // Find the highest tier where preventionScore >= minScore
   // CRIME_INDEX_TIERS is ordered best-first (highest minScore first)
@@ -71,7 +88,8 @@ export function calculateCrime(input: CrimeInput): CrimeResult {
 
   const jailCapacity = input.jails * 500;
   const prisonCapacity = input.prisons * 5000;
-  const totalCapacity = jailCapacity + prisonCapacity;
+  const laborCampCapacity = input.laborCamps * 200;
+  const totalCapacity = jailCapacity + prisonCapacity + laborCampCapacity;
   const incarcerated = Math.min(criminals, totalCapacity);
 
   const unincarcerated = criminals - incarcerated;
