@@ -1,6 +1,9 @@
 export interface WonderDef {
   name: string;
-  cost: number;
+  cost: number;                    // base cost
+  variableCostFormula?: string;    // description of variable cost formula
+  costMultiplierNS?: number;       // multiplier for nation strength component
+  costMultiplierTech?: number;     // tech coefficient in variable cost (negative = reduces cost)
   upkeep: number;
   happinessEffect: number;
   infraCostDiscount: number;
@@ -10,6 +13,14 @@ export interface WonderDef {
   citizenIncomeBonus: number;
   description: string;
   requirements: string;
+}
+
+export function getWonderActualCost(wonder: WonderDef, nationStrength: number, tech: number): number {
+  if (!wonder.costMultiplierNS) return wonder.cost;
+  const nsTechComponent = wonder.costMultiplierTech
+    ? wonder.costMultiplierNS * (nationStrength - tech * 2)
+    : wonder.costMultiplierNS * nationStrength;
+  return wonder.cost + Math.max(0, nsTechComponent);
 }
 
 export const WONDERS: WonderDef[] = [
@@ -22,8 +33,8 @@ export const WONDERS: WonderDef[] = [
   { name: 'Social Security System',          cost: 40_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Allows raising taxes to 30% without additional penalty', requirements: '' },
   { name: 'Political Lobbyists',             cost: 50_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Vote counts as two in senate', requirements: '' },
   { name: 'Interstate System',               cost: 45_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0.08, infraUpkeepDiscount: 0.08, techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Decreases infra cost -8% and infra upkeep -8%', requirements: '' },
-  { name: 'Moon Base',                       cost: 50_000_000,  upkeep: 5000, happinessEffect: 5, infraCostDiscount: 0.04, infraUpkeepDiscount: 0.04, techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Reduces infra cost/bills -4%, +5 happiness', requirements: 'Space Program' },
-  { name: 'Mars Base',                       cost: 100_000_000, upkeep: 5000, happinessEffect: 6, infraCostDiscount: 0.03, infraUpkeepDiscount: 0.03, techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Reduces infra cost/bills -3%, up to +6 happiness', requirements: 'Space Program' },
+  { name: 'Moon Base',                       cost: 50_000_000,  costMultiplierNS: 3000, costMultiplierTech: -6000, variableCostFormula: '$50M + 3000 × (NS - Tech×2)', upkeep: 5000, happinessEffect: 5, infraCostDiscount: 0.04, infraUpkeepDiscount: 0.04, techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Reduces infra cost/bills -4%, +5 happiness', requirements: 'Space Program' },
+  { name: 'Mars Base',                       cost: 100_000_000, costMultiplierNS: 6000, costMultiplierTech: -12000, variableCostFormula: '$100M + 6000 × (NS - Tech×2)', upkeep: 5000, happinessEffect: 6, infraCostDiscount: 0.03, infraUpkeepDiscount: 0.03, techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Reduces infra cost/bills -3%, up to +6 happiness', requirements: 'Space Program' },
   { name: 'Great University',                cost: 35_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0.10, populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Decreases tech cost -10%, +0.2% of tech level happiness', requirements: '' },
   { name: 'Space Program',                   cost: 30_000_000,  upkeep: 5000, happinessEffect: 3, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0.03, populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Increases happiness +3, lowers tech cost -3%', requirements: '' },
   { name: 'National Research Lab',           cost: 35_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0.03, populationEffect: 0.05, citizenIncomeBonus: 0,  description: 'Increases population +5%, decreases tech cost -3%', requirements: '' },
@@ -35,7 +46,7 @@ export const WONDERS: WonderDef[] = [
   { name: 'Agriculture Development Program', cost: 30_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 2,  description: 'Increases land +15%, citizen income +$2', requirements: '3000 land, 500 tech' },
   { name: 'Mining Industry Consortium',      cost: 25_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Increases income +$2 for Coal/Lead/Oil/Uranium', requirements: '5000 infra, 3000 land' },
   { name: 'Federal Aid Commission',          cost: 25_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Raises foreign aid cap +50%', requirements: '' },
-  { name: 'Federal Reserve',                 cost: 100_000_000, upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Increases max banks +2', requirements: 'Stock Market' },
+  { name: 'Federal Reserve',                 cost: 100_000_000, costMultiplierNS: 1000, variableCostFormula: '$100M + NS × 1000', upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Increases max banks +2', requirements: 'Stock Market' },
   { name: 'Pentagon',                        cost: 30_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Increases ground battle strength +20%', requirements: '' },
   { name: 'Superior Logistical Support',     cost: 80_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Reduces aircraft/naval maintenance -10%, tank -5%, ground +10%', requirements: 'Pentagon' },
   { name: 'Foreign Air Force Base',          cost: 35_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Raises aircraft limit +20', requirements: '' },
@@ -47,12 +58,12 @@ export const WONDERS: WonderDef[] = [
   { name: 'Anti-Air Defense Network',        cost: 50_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Reduces aircraft odds -25%, damage -10%', requirements: '' },
   { name: 'Fallout Shelter System',          cost: 40_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: '50% soldiers survive nukes, -25% losses, -1 day anarchy', requirements: '6000 infra, 2000 tech' },
   { name: 'Hidden Nuclear Missile Silo',     cost: 30_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Allows +5 nukes protected from spies', requirements: '' },
-  { name: 'EMP Weaponization',               cost: 200_000_000, upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Enables EMP nuclear attacks', requirements: '5000 tech, Weapons Research Complex' },
+  { name: 'EMP Weaponization',               cost: 200_000_000, costMultiplierNS: 2000, variableCostFormula: '$200M + NS × 2000', upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Enables EMP nuclear attacks', requirements: '5000 tech, Weapons Research Complex' },
   { name: 'Weapons Research Complex',        cost: 150_000_000, upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Doubles tech damage bonus, 2 nukes/day', requirements: 'National Research Lab, Pentagon' },
   { name: 'Central Intelligence Agency',     cost: 40_000_000,  upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Increases spy limit +250, spy attack +10%', requirements: '' },
-  { name: 'Moon Colony',                     cost: 50_000_000,  upkeep: 5000, happinessEffect: 3, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Stores 6% citizens, +3 happiness', requirements: 'Space Program, Moon Base' },
-  { name: 'Moon Mine',                       cost: 50_000_000,  upkeep: 5000, happinessEffect: 3, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Random Lunar bonus resource, +3 happiness', requirements: 'Space Program, Moon Base' },
-  { name: 'Mars Colony',                     cost: 100_000_000, upkeep: 5000, happinessEffect: 4, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Stores 5% citizens, up to +4 happiness', requirements: 'Space Program, Mars Base' },
-  { name: 'Mars Mine',                       cost: 100_000_000, upkeep: 5000, happinessEffect: 4, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Random Martian bonus resource, up to +4 happiness', requirements: 'Space Program, Mars Base' },
+  { name: 'Moon Colony',                     cost: 50_000_000,  costMultiplierNS: 2500, costMultiplierTech: -5000, variableCostFormula: '$50M + 2500 × (NS - Tech×2)', upkeep: 5000, happinessEffect: 3, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Stores 6% citizens, +3 happiness', requirements: 'Space Program, Moon Base' },
+  { name: 'Moon Mine',                       cost: 50_000_000,  costMultiplierNS: 2500, costMultiplierTech: -5000, variableCostFormula: '$50M + 2500 × (NS - Tech×2)', upkeep: 5000, happinessEffect: 3, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Random Lunar bonus resource, +3 happiness', requirements: 'Space Program, Moon Base' },
+  { name: 'Mars Colony',                     cost: 100_000_000, costMultiplierNS: 5000, costMultiplierTech: -10000, variableCostFormula: '$100M + 5000 × (NS - Tech×2)', upkeep: 5000, happinessEffect: 4, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Stores 5% citizens, up to +4 happiness', requirements: 'Space Program, Mars Base' },
+  { name: 'Mars Mine',                       cost: 100_000_000, costMultiplierNS: 5000, costMultiplierTech: -10000, variableCostFormula: '$100M + 5000 × (NS - Tech×2)', upkeep: 5000, happinessEffect: 4, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: 'Random Martian bonus resource, up to +4 happiness', requirements: 'Space Program, Mars Base' },
   { name: 'National Cemetery',               cost: 150_000_000, upkeep: 5000, happinessEffect: 0, infraCostDiscount: 0,    infraUpkeepDiscount: 0,    techCostDiscount: 0,    populationEffect: 0,    citizenIncomeBonus: 0,  description: '+0.20 happiness per 1M casualties up to +5', requirements: 'National War Memorial' },
 ];

@@ -1,5 +1,5 @@
 import type { WonderProjection } from '../types';
-import { WONDERS } from '../data/wonders';
+import { WONDERS, getWonderActualCost } from '../data/wonders';
 
 interface WonderAdvisorInput {
   citizenCount: number;
@@ -8,6 +8,7 @@ interface WonderAdvisorInput {
   happiness: number;
   tech: number;
   taxRate: number; // as decimal, e.g. 0.28
+  nationStrength: number;
   // Improvement counts
   banks: number;
   foreignMinistries: number;
@@ -86,13 +87,14 @@ export function calculateWonderProjections(
     }
 
     const incomeGain = projectedIncome - input.netIncome;
-    const daysToROI = incomeGain > 0 ? wonder.cost / incomeGain : 0;
+    const actualCost = getWonderActualCost(wonder, input.nationStrength ?? 0, input.tech);
+    const daysToROI = incomeGain > 0 ? actualCost / incomeGain : 0;
 
     return {
       name: wonder.name,
       projectedIncome,
       incomeGain,
-      cost: wonder.cost,
+      cost: actualCost,
       daysToROI,
       owned,
       isBest: false,

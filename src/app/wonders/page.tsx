@@ -29,6 +29,7 @@ export default function WondersPage() {
       happiness: nation.happiness,
       tech: nation.tech,
       taxRate: nation.taxRate / 100,
+      nationStrength: nation.nationStrength,
       banks: nation.improvements['Banks'] ?? 0,
       foreignMinistries: nation.improvements['Foreign Ministries'] ?? 0,
       guerillaCamps: nation.improvements['Guerilla Camps'] ?? 0,

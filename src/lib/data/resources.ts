@@ -152,3 +152,44 @@ export const RESOURCE_SOLDIER_UPKEEP_DISCOUNTS: Record<string, number> = {
 export const BONUS_POPULATION_MODIFIERS: Record<string, ResourceModifier> = {
   'affluent population': { name: 'Affluent Population', value: 0.05, direction: 'bonus' },
 };
+
+// Moon/Mars bonus resources
+export const MOON_MARS_RESOURCES = [
+  'Basalt', 'Calcium', 'Magnesium', 'Potassium',
+  'Radon', 'Silicon', 'Sodium', 'Titanium',
+] as const;
+
+// Moon/Mars resource effects (conditional on other resources/bonuses)
+export const MOON_MARS_EFFECTS: Record<string, { condition: string; effect: string; happinessBonus?: number; infraCostDiscount?: number; infraUpkeepDiscount?: number; citizenIncomeBonus?: number }[]> = {
+  'Basalt': [
+    { condition: 'Automobiles', effect: '+3 happiness', happinessBonus: 3 },
+    { condition: 'Asphalt', effect: '-5% infra upkeep', infraUpkeepDiscount: 0.05 },
+    { condition: 'Construction', effect: '-5% infra cost', infraCostDiscount: 0.05 },
+  ],
+  'Calcium': [
+    { condition: 'Rubber, Furs, Spices, Wine', effect: '+$3/citizen per matching resource', citizenIncomeBonus: 3 },
+  ],
+  'Magnesium': [
+    { condition: 'Microchips', effect: '+4 happiness', happinessBonus: 4 },
+    { condition: 'Steel', effect: '-4% infra upkeep', infraUpkeepDiscount: 0.04 },
+  ],
+  'Potassium': [
+    { condition: 'Fine Jewelry', effect: '+3 happiness', happinessBonus: 3 },
+    { condition: 'Scholar', effect: '+$3 citizen income', citizenIncomeBonus: 3 },
+    { condition: 'Affluent Population', effect: '+$3 citizen income', citizenIncomeBonus: 3 },
+  ],
+  'Radon': [
+    { condition: 'Lead, Gold, Water, Uranium', effect: '+$3/citizen per matching resource', citizenIncomeBonus: 3 },
+  ],
+  'Silicon': [
+    { condition: 'Rubber, Furs, Gems, Silver', effect: '+$3/citizen per matching resource', citizenIncomeBonus: 3 },
+  ],
+  'Sodium': [
+    { condition: 'Fast Food', effect: '+2 happiness', happinessBonus: 2 },
+    { condition: 'Beer', effect: '+2 happiness', happinessBonus: 2 },
+    { condition: 'Radiation Cleanup', effect: '-50% additional GRL (75% total)', },
+  ],
+  'Titanium': [
+    { condition: 'Gold, Lead, Coal, Oil', effect: '+$3/citizen per matching resource', citizenIncomeBonus: 3 },
+  ],
+};
