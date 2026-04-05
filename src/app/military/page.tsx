@@ -75,8 +75,9 @@ export default function MilitaryPage() {
         guerillaCamps,
         barracks,
         activeResources: milResources,
+        defcon: nation.defcon || 5,
       }),
-    [citizens, currentSoldiers, currentTanks, guerillaCamps, barracks, milResources]
+    [citizens, currentSoldiers, currentTanks, guerillaCamps, barracks, milResources, nation.defcon]
   );
 
   const spyResult = useMemo(

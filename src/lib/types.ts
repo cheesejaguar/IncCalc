@@ -139,6 +139,7 @@ export interface MobilizeInput {
   guerillaCamps: number;
   barracks: number;
   activeResources: string[];
+  defcon: number;
 }
 
 export interface MobilizeResult {

@@ -6,7 +6,7 @@ export interface ImprovementDef {
 
 export const IMPROVEMENTS: Record<string, ImprovementDef> = {
   'Banks':                  { name: 'Banks',                  cost: 100000, maxCount: 5 },
-  'Border Walls':           { name: 'Border Walls',           cost: 60000,  maxCount: 5 },
+  'Border Walls':           { name: 'Border Walls',           cost: 60000,  maxCount: 1 },
   'Churches':               { name: 'Churches',               cost: 40000,  maxCount: 5 },
   'Clinics':                { name: 'Clinics',                cost: 50000,  maxCount: 5 },
   'Factories':              { name: 'Factories',              cost: 150000, maxCount: 5 },
