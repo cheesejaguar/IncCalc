@@ -39,7 +39,7 @@ const LAND_BASE_PRICE = 400;
  * Compute combined resource modifier for land purchase cost.
  * Discounts: Cattle -10%, Fish -5%, Rubber -10% (multiplicative).
  */
-function computeLandResourceModifier(activeResources: string[]): number {
+export function computeLandResourceModifier(activeResources: string[]): number {
   let modifier = 1;
   for (const resource of activeResources) {
     const key = resource.toLowerCase();
@@ -102,6 +102,28 @@ export function calculateLandCost(input: LandInput): LandResult {
     modifier,
     peakRebuyApplied,
   };
+}
+
+/**
+ * Generate data points for land cost curve chart.
+ */
+export function generateLandCostCurve(
+  currentLand: number,
+  range: number,
+  peakLand: number,
+  activeResources: string[],
+  step = 10
+): Array<{ level: number; cost: number; inRebuy: boolean }> {
+  const modifier = computeLandResourceModifier(activeResources);
+  const data: Array<{ level: number; cost: number; inRebuy: boolean }> = [];
+
+  for (let level = currentLand; level <= currentLand + range; level += step) {
+    const k = getLandK(level);
+    const baseCost = modifier * (k * level + 400);
+    const inRebuy = level < peakLand;
+    data.push({ level, cost: inRebuy ? baseCost * 0.5 : baseCost, inRebuy });
+  }
+  return data;
 }
 
 export { getLandK };

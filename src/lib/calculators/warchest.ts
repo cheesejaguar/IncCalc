@@ -56,3 +56,23 @@ export function calculateWarchest(input: WarchestInput): WarchestResult {
     recommendedWarchest,
   };
 }
+
+/**
+ * Generate day-by-day cash projection for chart.
+ */
+export function generateWarchestProjection(
+  currentCash: number,
+  dailyNetIncome: number,
+  warDailyNet: number,
+  days = 60
+): Array<{ day: number; peacetime: number; wartime: number }> {
+  const data: Array<{ day: number; peacetime: number; wartime: number }> = [];
+  for (let day = 0; day <= days; day++) {
+    data.push({
+      day,
+      peacetime: Math.max(0, currentCash + dailyNetIncome * day),
+      wartime: Math.max(0, currentCash + warDailyNet * day),
+    });
+  }
+  return data;
+}

@@ -108,3 +108,22 @@ export function calculateBattleOdds(input: BattleInput): BattleResult {
     attackerAdvantage,
   };
 }
+
+/**
+ * Generate battle odds curve: success rate vs attacker soldier count.
+ */
+export function generateBattleOddsCurve(
+  input: Omit<BattleInput, 'attackerSoldiers'>,
+  maxSoldiers: number,
+  step = 100
+): Array<{ soldiers: number; successRate: number }> {
+  const data: Array<{ soldiers: number; successRate: number }> = [];
+  for (let soldiers = 0; soldiers <= maxSoldiers; soldiers += step) {
+    const result = calculateBattleOdds({ ...input, attackerSoldiers: soldiers });
+    data.push({
+      soldiers,
+      successRate: Math.round(result.successRate * 100) / 100,
+    });
+  }
+  return data;
+}
