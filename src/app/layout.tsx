@@ -1,12 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Barlow } from "next/font/google";
+import { Chakra_Petch } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Sidebar, MobileNav } from "@/components/layout/Sidebar";
 import { NationDataProvider } from "@/hooks/useNationData";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const barlow = Barlow({
+  variable: "--font-barlow",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const chakraPetch = Chakra_Petch({
+  variable: "--font-chakra",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -27,9 +36,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${barlow.variable} ${chakraPetch.variable} ${geistMono.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col">
+        {/* Top accent bar */}
+        <div className="h-0.5 bg-[#B92432] shrink-0" aria-hidden="true" />
         <NationDataProvider>
           <div className="flex flex-1 min-h-screen">
             <Sidebar />

@@ -31,7 +31,9 @@ export default function HomePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">IncCalc</h1>
+        <h1 className="text-2xl font-bold tracking-wide uppercase">
+          <span className="border-b-2 border-[#B92432] pb-0.5">War Room</span>
+        </h1>
         <p className="text-muted-foreground mt-1">
           Nation optimization calculator for Cybernations. Load your nation data to get started.
         </p>
@@ -112,7 +114,7 @@ export default function HomePage() {
             value={pasteText}
             onChange={(e) => setPasteText(e.target.value)}
             placeholder="Paste your View My Nation page text here..."
-            className="w-full h-48 rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-y"
+            className="w-full h-48 rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B92432] focus-visible:border-[#B92432] resize-y transition-colors"
           />
           {parseError && (
             <p className="text-sm text-red-400">{parseError}</p>
