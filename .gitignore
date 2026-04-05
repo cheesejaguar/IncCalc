@@ -22,7 +22,9 @@
 
 # misc
 .DS_Store
+._*
 *.pem
+Thumbs.db
 
 # debug
 npm-debug.log*
