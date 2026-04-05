@@ -51,8 +51,8 @@ export function Sidebar() {
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-150',
                 isActive
-                  ? 'bg-[#B92432] text-white shadow-md shadow-[#B92432]/20'
-                  : 'text-muted-foreground hover:bg-[rgba(185,36,50,0.1)] hover:text-foreground'
+                  ? 'bg-[#B92432] text-white'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -87,7 +87,7 @@ export function MobileNav() {
               'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs whitespace-nowrap font-medium transition-colors',
               isActive
                 ? 'bg-[#B92432] text-white'
-                : 'text-muted-foreground hover:bg-[rgba(185,36,50,0.1)]'
+                : 'text-muted-foreground hover:bg-accent'
             )}
           >
             <Icon className="h-3.5 w-3.5" />

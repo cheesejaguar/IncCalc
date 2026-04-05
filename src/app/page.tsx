@@ -114,7 +114,7 @@ export default function HomePage() {
             value={pasteText}
             onChange={(e) => setPasteText(e.target.value)}
             placeholder="Paste your View My Nation page text here..."
-            className="w-full h-48 rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B92432] focus-visible:border-[#B92432] resize-y transition-colors"
+            className="w-full h-48 rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-y"
           />
           {parseError && (
             <p className="text-sm text-red-400">{parseError}</p>
