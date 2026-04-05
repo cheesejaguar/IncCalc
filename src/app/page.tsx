@@ -32,7 +32,7 @@ export default function HomePage() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-wide uppercase">
-          <span className="border-b-2 border-[#B92432] pb-0.5">War Room</span>
+          <span className="border-b-2 border-[#B92432] pb-0.5">IncCalc</span>
         </h1>
         <p className="text-muted-foreground mt-1">
           Nation optimization calculator for Cybernations. Load your nation data to get started.
