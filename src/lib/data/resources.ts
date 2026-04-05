@@ -9,9 +9,9 @@ export type ResourceName = typeof ALL_RESOURCES[number];
 
 // Bonus resources that come from having certain resource combos
 export const BONUS_RESOURCES = [
-  'Asphalt', 'Automobiles', 'Beer', 'Construction', 'Fine Jewelry',
-  'Interstate', 'Microchips', 'Radiation Cleanup', 'Scholar',
-  'Steel',
+  'Affluent Population', 'Asphalt', 'Automobiles', 'Beer', 'Construction',
+  'Fast Food', 'Fine Jewelry', 'Interstate', 'Microchips',
+  'Radiation Cleanup', 'Scholar', 'Steel',
 ] as const;
 
 export type BonusResourceName = typeof BONUS_RESOURCES[number];
@@ -102,3 +102,53 @@ export const GOVERNMENT_MILITARY_ELIGIBLE = [
   'Communist', 'Democracy', 'Dictatorship',
   'Federal Government', 'Transitional',
 ];
+
+// Citizen daily income bonuses from resources (flat $ per citizen per day)
+export const RESOURCE_INCOME_BONUSES: Record<string, number> = {
+  furs: 3.50,
+  gems: 1.50,
+  gold: 3.00,
+  silver: 2.00,
+  scholar: 3.00,
+};
+
+// Happiness bonuses from resources
+export const RESOURCE_HAPPINESS_BONUSES: Record<string, number> = {
+  gems: 2.5,
+  oil: 1.5,
+  silver: 2.0,
+  spices: 2.0,
+  sugar: 1.0,
+  water: 2.5,
+  wine: 3.0,
+  automobiles: 3.0,
+  beer: 2.0,
+  'fast food': 2.0,
+  'fine jewelry': 3.0,
+  microchips: 2.0,
+};
+
+// Purchased land area bonuses from resources
+export const RESOURCE_LAND_BONUSES: Record<string, number> = {
+  coal: 0.15,
+  rubber: 0.20,
+  spices: 0.08,
+};
+
+// Land purchase cost discounts
+export const RESOURCE_LAND_COST_DISCOUNTS: Record<string, number> = {
+  cattle: 0.10,
+  fish: 0.05,
+  rubber: 0.10,
+};
+
+// Soldier upkeep cost reductions (flat $ per soldier per day)
+export const RESOURCE_SOLDIER_UPKEEP_DISCOUNTS: Record<string, number> = {
+  lead: 0.50,
+  pigs: 0.50,
+};
+
+// Population growth bonuses from bonus resources
+export const BONUS_POPULATION_MODIFIERS: Record<string, ResourceModifier> = {
+  'affluent population': { name: 'Affluent Population', value: 0.05, direction: 'bonus' },
+};
