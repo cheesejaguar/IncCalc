@@ -76,6 +76,7 @@ export interface InfraInput {
   purchaseAmount: number;
   factories: number;
   activeResources: string[];
+  ownedWonders?: string[];
 }
 
 export interface InfraResult {
@@ -108,6 +109,7 @@ export interface UpkeepInput {
   nationStrength: number;
   laborCamps: number;
   activeResources: string[];
+  ownedWonders?: string[];
 }
 
 export interface UpkeepResult {
@@ -139,6 +141,8 @@ export interface MobilizeInput {
   guerillaCamps: number;
   barracks: number;
   activeResources: string[];
+  defcon: number;
+  factories: number;
 }
 
 export interface MobilizeResult {
@@ -148,6 +152,7 @@ export interface MobilizeResult {
   maxTanks: number;
   tankCost: number;
   totalTankCost: number;
+  tankUpkeep: number;
   modifier: number;
 }
 
@@ -186,4 +191,14 @@ export interface ImprovementAnalysis {
   roi: string;
   infraPerDay: number;
   canPurchase: boolean;
+}
+
+export interface HappinessBreakdownItem {
+  source: string;
+  value: number;
+}
+
+export interface HappinessResult {
+  total: number;
+  breakdown: HappinessBreakdownItem[];
 }

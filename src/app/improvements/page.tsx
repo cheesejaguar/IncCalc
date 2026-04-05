@@ -7,6 +7,7 @@ import { calculateImprovementAnalysis } from '@/lib/calculators/improvement-advi
 import { calculateUpkeep } from '@/lib/calculators/upkeep';
 import { getInfraUnitCost } from '@/lib/calculators/infrastructure';
 import { formatCurrency, formatNumber } from '@/components/shared/CurrencyDisplay';
+import { HelpTip } from '@/components/shared/HelpTip';
 import {
   Table,
   TableBody,
@@ -15,6 +16,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { CHART_THEME, TOOLTIP_STYLE, AXIS_TICK } from '@/lib/chart-theme';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Cell,
+} from 'recharts';
 
 export default function ImprovementsPage() {
   const { nation, isLoaded, allResources } = useNationData();
@@ -54,6 +60,14 @@ export default function ImprovementsPage() {
     });
   }, [nation, isLoaded, allResources]);
 
+  const chartData = useMemo(() => {
+    if (!analysis) return [];
+    return analysis
+      .filter((imp) => imp.canPurchase && imp.incomeChange !== 0)
+      .sort((a, b) => b.incomeChange - a.incomeChange)
+      .map((imp) => ({ name: imp.name, incomeChange: imp.incomeChange }));
+  }, [analysis]);
+
   if (!isLoaded) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -75,7 +89,7 @@ export default function ImprovementsPage() {
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Improvement Analysis</CardTitle>
           <CardDescription>
-            Which improvement will generate the most cash or largest infra purchase capability.
+            Compare improvement ROI — which purchase generates the most income per day after $5,000 daily upkeep. Gray rows cannot be purchased (max count reached or missing prerequisites).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -85,7 +99,9 @@ export default function ImprovementsPage() {
                 <TableHead>Improvement</TableHead>
                 <TableHead className="text-right">Current</TableHead>
                 <TableHead className="text-right">Income Change</TableHead>
-                <TableHead className="text-right">ROI</TableHead>
+                <TableHead className="text-right">
+                  ROI <HelpTip term="ROI" />
+                </TableHead>
                 <TableHead className="text-right">Infra/Day</TableHead>
               </TableRow>
             </TableHeader>
@@ -125,6 +141,31 @@ export default function ImprovementsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {chartData.length > 0 && (
+        <Card className="mt-4">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Income Impact by Improvement</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div style={{ height: Math.max(200, chartData.length * 28) }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
+                  <XAxis type="number" tick={AXIS_TICK} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                  <YAxis type="category" dataKey="name" tick={AXIS_TICK} width={140} />
+                  <Tooltip {...TOOLTIP_STYLE} formatter={(v) => { const n = Number(v); return isNaN(n) ? ['—', 'Income Change'] : [`$${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}/day`, 'Income Change']; }} />
+                  <Bar dataKey="incomeChange" radius={[0, 4, 4, 0]}>
+                    {chartData.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.incomeChange >= 0 ? CHART_THEME.positive : CHART_THEME.negative} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

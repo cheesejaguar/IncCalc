@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useNationData } from '@/hooks/useNationData';
 import { parseNationText } from '@/lib/nation-parser';
 import { formatCurrency, formatNumber } from '@/components/shared/CurrencyDisplay';
+import { HelpTip } from '@/components/shared/HelpTip';
 
 export default function HomePage() {
   const { nation, isLoaded, setNation, clearNation } = useNationData();
@@ -31,9 +32,14 @@ export default function HomePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">IncCalc</h1>
+        <h1 className="text-2xl font-bold tracking-wide uppercase">
+          <span className="border-b-2 border-[#B92432] pb-0.5">IncCalc</span>
+        </h1>
         <p className="text-muted-foreground mt-1">
           Nation optimization calculator for Cybernations. Load your nation data to get started.
+        </p>
+        <p className="text-muted-foreground text-sm mt-2">
+          Navigate to your &quot;View My Nation&quot; page in Cyber Nations, select all text (Ctrl+A), copy it (Ctrl+C), and paste it in the box below.
         </p>
       </div>
 
@@ -58,13 +64,13 @@ export default function HomePage() {
               <Stat label="Citizens" value={formatNumber(nation.citizens)} />
               <Stat label="Income/Citizen" value={formatCurrency(nation.income)} />
               <Stat label="Tax Rate" value={`${nation.taxRate}%`} />
-              <Stat label="Happiness" value={formatNumber(nation.happiness, 2)} />
-              <Stat label="Nation Strength" value={formatNumber(nation.nationStrength, 2)} />
+              <Stat label={<>Happiness <HelpTip term="Happiness" /></>} value={formatNumber(nation.happiness, 2)} />
+              <Stat label={<>Nation Strength <HelpTip term="Nation Strength" /></>} value={formatNumber(nation.nationStrength, 2)} />
               <Stat label="Soldiers" value={formatNumber(nation.soldiers)} />
               <Stat label="Tanks" value={formatNumber(nation.tanks)} />
               <Stat label="Spies" value={formatNumber(nation.spies)} />
               <Stat label="Cash" value={formatCurrency(nation.cash)} />
-              <Stat label="DEFCON" value={String(nation.defcon)} />
+              <Stat label={<>DEFCON <HelpTip term="DEFCON" /></>} value={String(nation.defcon)} />
             </div>
 
             {nation.connectedResources.length > 0 && (
@@ -126,10 +132,10 @@ export default function HomePage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value }: { label: React.ReactNode; value: string }) {
   return (
     <div>
-      <span className="text-muted-foreground">{label}: </span>
+      <span className="text-muted-foreground inline-flex items-center gap-0.5">{label}: </span>
       <span className="font-medium">{value}</span>
     </div>
   );

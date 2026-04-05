@@ -38,6 +38,18 @@ export function calculateInfraCost(input: InfraInput): InfraResult {
   // Apply factory modifier (linear stacking)
   modifier *= linearImprovementModifier(input.factories, 0.08);
 
+  // Wonder modifiers
+  if (input.ownedWonders) {
+    if (input.ownedWonders.includes('Moon Base')) modifier *= 0.96;
+    if (input.ownedWonders.includes('Mars Base')) modifier *= 0.97;
+    // Scientific Development Center buffs factory discount from 8% to 10% per factory
+    if (input.ownedWonders.includes('Scientific Development Center') && input.factories > 0) {
+      const normalFactory = 1 - input.factories * 0.08;
+      const sdcFactory = 1 - input.factories * 0.10;
+      if (normalFactory > 0) modifier *= sdcFactory / normalFactory;
+    }
+  }
+
   const stepSize = 10;
   const steps = Math.floor(input.purchaseAmount / stepSize);
   let totalCost = 0;
@@ -74,6 +86,40 @@ export function getInfraUnitCost(
   modifier *= linearImprovementModifier(factories, 0.08);
   const k = getInfraK(infra);
   return modifier * (k * infra + 500);
+}
+
+/**
+ * Generate data points for infrastructure cost curve chart.
+ * Returns cost-per-unit at each level from currentInfra to currentInfra + range.
+ */
+export function generateInfraCostCurve(
+  currentInfra: number,
+  range: number,
+  factories: number,
+  activeResources: string[],
+  ownedWonders?: string[],
+  step = 10
+): Array<{ level: number; cost: number }> {
+  // Compute modifier (same logic as calculateInfraCost)
+  let modifier = computeResourceModifier(INFRA_MODIFIERS, activeResources);
+  modifier *= linearImprovementModifier(factories, 0.08);
+  if (ownedWonders) {
+    if (ownedWonders.includes('Moon Base')) modifier *= 0.96;
+    if (ownedWonders.includes('Mars Base')) modifier *= 0.97;
+    if (ownedWonders.includes('Scientific Development Center') && factories > 0) {
+      const normalFactory = 1 - factories * 0.08;
+      const sdcFactory = 1 - factories * 0.10;
+      if (normalFactory > 0) modifier *= sdcFactory / normalFactory;
+    }
+  }
+
+  const data: Array<{ level: number; cost: number }> = [];
+  for (let level = currentInfra; level <= currentInfra + range; level += step) {
+    const k = getInfraK(level);
+    const cost = modifier * (k * level + 500);
+    data.push({ level, cost });
+  }
+  return data;
 }
 
 export { getInfraK };

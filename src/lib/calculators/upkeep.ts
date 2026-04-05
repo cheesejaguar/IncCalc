@@ -43,6 +43,14 @@ function computeUpkeepModifier(input: UpkeepInput): number {
   const ns = input.nationStrength || 1;
   modifier *= Math.max(1 - (2 * input.tech) / ns, 0.90);
 
+  // Wonder modifiers
+  if (input.ownedWonders) {
+    if (input.ownedWonders.includes('Moon Base')) modifier *= 0.96;
+    if (input.ownedWonders.includes('Mars Base')) modifier *= 0.97;
+    if (input.ownedWonders.includes('National Environment Office')) modifier *= 0.97;
+    if (input.ownedWonders.includes('Nuclear Power Plant')) modifier *= 0.95;
+  }
+
   return modifier;
 }
 

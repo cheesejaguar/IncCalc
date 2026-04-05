@@ -29,6 +29,7 @@ export default function WondersPage() {
       happiness: nation.happiness,
       tech: nation.tech,
       taxRate: nation.taxRate / 100,
+      nationStrength: nation.nationStrength,
       banks: nation.improvements['Banks'] ?? 0,
       foreignMinistries: nation.improvements['Foreign Ministries'] ?? 0,
       guerillaCamps: nation.improvements['Guerilla Camps'] ?? 0,
@@ -63,7 +64,7 @@ export default function WondersPage() {
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Wonder Projections</CardTitle>
           <CardDescription>
-            Comparative benefits of each wonder based on your current nation data. Costs are not factored into the recommendation.
+            Compare national wonders by projected income gain and days to recoup the investment. Variable-cost wonders (Moon/Mars bases) factor in your Nation Strength.
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -17,7 +17,7 @@ const THREAT_MULTIPLIERS: Record<ThreatLevel, number> = {
  * Ported from spyodds.class.php getOdds() lines 77-83.
  *
  * Offensive modifier = mySpies + (myTech / 20)
- * Defensive modifier = (enemySpies + (enemyLand + enemyTech) / 20) * threatMod
+ * Defensive modifier = (enemySpies + enemyTech / 20 + enemyLand / 70) * threatMod
  * Success rate = 100 * offensive / (offensive + defensive)
  */
 export function calculateSpyOdds(input: SpyOddsInput): SpyOddsResult {
@@ -25,7 +25,7 @@ export function calculateSpyOdds(input: SpyOddsInput): SpyOddsResult {
 
   const offensiveMod = input.mySpies + input.myTech / 20;
   const defensiveMod =
-    (input.enemySpies + (input.enemyLand + input.enemyTech) / 20) * threatMod;
+    (input.enemySpies + input.enemyTech / 20 + input.enemyLand / 70) * threatMod;
 
   const successRate =
     offensiveMod + defensiveMod > 0

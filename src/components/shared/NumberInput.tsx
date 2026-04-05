@@ -1,11 +1,12 @@
 'use client';
 
+import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface NumberInputProps {
   id: string;
-  label: string;
+  label: React.ReactNode;
   value: number;
   onChange: (value: number) => void;
   min?: number;
