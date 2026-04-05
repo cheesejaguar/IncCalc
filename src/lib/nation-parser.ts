@@ -27,36 +27,60 @@ function num(text: string): number {
 }
 
 /**
- * Parse connected resources from the game's bracketed format.
- * e.g. "[Aluminum icon] [Coal icon]" → ["Aluminum", "Coal"]
+ * Parse connected resources.
+ * New format: "Coal - description.Uranium - description."
+ * Legacy format: "[Aluminum icon] [Coal icon]"
  */
 function parseResources(raw: string): string[] {
   if (!raw.trim()) return [];
-  const parts = raw.split('] [');
+
+  // Legacy bracket format
+  if (raw.includes('[')) {
+    const parts = raw.split('] [');
+    return parts
+      .map((txt) => {
+        const cleaned = txt.replace(/[\[\]]/g, '').trim();
+        const spaceIdx = cleaned.indexOf(' ');
+        return spaceIdx > 0 ? cleaned.substring(0, spaceIdx) : cleaned;
+      })
+      .filter((r) => r.length > 0);
+  }
+
+  // New format: "Name - description text.Name - description text."
+  // Split on period immediately followed by an uppercase letter (next resource name)
+  const parts = raw.split(/\.(?=[A-Z])/);
   return parts
     .map((txt) => {
-      // Extract resource name (before the first space in each bracket group)
-      const cleaned = txt.replace(/[\[\]]/g, '').trim();
-      const spaceIdx = cleaned.indexOf(' ');
-      return spaceIdx > 0 ? cleaned.substring(0, spaceIdx) : cleaned;
+      const trimmed = txt.trim();
+      const dashIdx = trimmed.indexOf(' - ');
+      return dashIdx > 0 ? trimmed.substring(0, dashIdx).trim() : '';
     })
     .filter((r) => r.length > 0);
 }
 
 /**
- * Parse bonus resources (have a dash separator).
- * e.g. "[Steel - bonus]" → ["Steel"]
+ * Parse bonus resources.
+ * New format: "Steel - description.Fine Jewelry - description." or "None"
+ * Legacy format: "[Steel - bonus]"
  */
 function parseBonusResources(raw: string): string[] {
-  if (!raw.trim()) return [];
-  const parts = raw.split('] [');
-  return parts
-    .map((txt) => {
-      const cleaned = txt.replace(/[\[\]]/g, '').trim();
-      const dashIdx = cleaned.indexOf('-');
-      return dashIdx > 0 ? cleaned.substring(0, dashIdx).trim() : cleaned;
-    })
-    .filter((r) => r.length > 0);
+  const trimmed = raw.trim();
+  if (!trimmed || trimmed === 'None') return [];
+
+  // Legacy bracket format
+  if (trimmed.includes('[')) {
+    const parts = trimmed.split('] [');
+    return parts
+      .map((txt) => {
+        const cleaned = txt.replace(/[\[\]]/g, '').trim();
+        const dashIdx = cleaned.indexOf('-');
+        return dashIdx > 0 ? cleaned.substring(0, dashIdx).trim() : cleaned;
+      })
+      .filter((r) => r.length > 0);
+  }
+
+  // New format: same as connected resources
+  return parseResources(trimmed);
 }
 
 /**
@@ -85,11 +109,11 @@ function parseImprovements(raw: string): Record<string, number> {
 /**
  * Parse wonders string.
  * e.g. "Internet, Stock Market" → ["Internet", "Stock Market"]
- * or "No national wonders" → []
+ * or "No national wonders" / "No national wonders." → []
  */
 function parseWonders(raw: string): string[] {
   const trimmed = raw.replace(/[^a-zA-Z ,]/g, '').trim();
-  if (!trimmed || trimmed === 'No national wonders') return [];
+  if (!trimmed || trimmed.includes('No national wonders')) return [];
   return trimmed.split(',').map((w) => w.trim()).filter(Boolean);
 }
 
@@ -108,13 +132,24 @@ export function parseNationText(rawText: string): NationData {
   ) || rawText;
 
   // Government & Religion
+  // Try bracket format first (legacy), then extract first non-empty line
   let govRaw = getText(text, 'Government Type:', '(Next');
-  govRaw = getText(govRaw, '[', ']') || govRaw;
-  nation.government = clean(govRaw);
+  let govBracket = getText(govRaw, '[', ']');
+  if (govBracket) {
+    nation.government = clean(govBracket);
+  } else {
+    const govLines = govRaw.split('\n').map(l => l.trim()).filter(Boolean);
+    nation.government = govLines.length > 0 ? govLines[0] : '';
+  }
 
   let reliRaw = getText(text, 'National Religion:', 'Nation Team:');
-  reliRaw = getText(reliRaw, '[', ']') || reliRaw;
-  nation.religion = clean(reliRaw);
+  let reliBracket = getText(reliRaw, '[', ']');
+  if (reliBracket) {
+    nation.religion = clean(reliBracket);
+  } else {
+    const reliLines = reliRaw.split('\n').map(l => l.trim()).filter(Boolean);
+    nation.religion = reliLines.length > 0 ? reliLines[0] : '';
+  }
 
   // Core stats
   nation.tech = num(getText(text, 'Technology:', 'Infrastructure:'));
@@ -140,8 +175,10 @@ export function parseNationText(rawText: string): NationData {
   const grossRaw = getText(text, 'Avg. Gross Income Per Individual', 'Avg. Individual Income Taxes Paid Per Day');
   nation.grossIncome = num(getText(grossRaw, '$', '('));
 
-  const happyRaw = getText(text, 'Population Happiness:', 'ulation Per Mile:');
-  nation.happiness = num(getText(happyRaw, ']', 'Pop'));
+  // Happiness: try bracket format, then parse first number directly
+  const happyRaw = getText(text, 'Population Happiness:', 'Crime Index:');
+  const happyBracket = getText(happyRaw, ']', 'Pop');
+  nation.happiness = happyBracket ? num(happyBracket) : num(happyRaw);
 
   nation.nationStrength = num(getText(text, 'Nation Strength:', 'Efficiency:'));
 
@@ -156,15 +193,34 @@ export function parseNationText(rawText: string): NationData {
   const taxRaw = getText(text, 'Tax Rate', 'Area of Influence:');
   nation.taxRate = num(getText(taxRaw, ':', '%'));
 
-  let envirRaw = clean(getText(text, 'Environment:', ' Radiation'));
-  envirRaw = clean(getText(envirRaw, ']', 'Global'));
-  nation.environment = num(envirRaw);
+  // Environment: try legacy format, then parse first number directly
+  const envirLegacy = getText(text, 'Environment:', ' Radiation');
+  const envirBracket = getText(envirLegacy, ']', 'Global');
+  if (envirBracket.trim()) {
+    nation.environment = num(envirBracket);
+  } else {
+    const envirRaw = getText(text, 'Environment:', 'Military Information');
+    nation.environment = num(envirRaw);
+  }
 
-  const cashRaw = getText(text, 'Government Financial', 'Anywhere');
-  nation.cash = num(getText(cashRaw, '$', '('));
+  // Cash: prefer "Current Dollars Available:" marker, fall back to legacy
+  const cashDirect = getText(text, 'Current Dollars Available:', '(');
+  if (cashDirect.trim()) {
+    nation.cash = num(cashDirect.replace('$', ''));
+  } else {
+    const cashRaw = getText(text, 'Government Financial', 'Anywhere');
+    nation.cash = num(getText(cashRaw, '$', '('));
+  }
 
-  const defconRaw = getText(text, 'DEFCON Level:', 'Number of Soldiers:');
-  nation.defcon = num(getText(defconRaw, '[DEFCON', '-'));
+  // DEFCON: try bracket format, then regex extraction
+  const defconRaw = getText(text, 'DEFCON Level:', 'Threat Level:');
+  const defconBracket = getText(defconRaw, '[DEFCON', '-');
+  if (defconBracket.trim()) {
+    nation.defcon = num(defconBracket);
+  } else {
+    const defconMatch = defconRaw.match(/DEFCON\s*(\d)/);
+    nation.defcon = defconMatch ? parseInt(defconMatch[1], 10) : 0;
+  }
 
   // Resources
   const connectedRaw = getText(text, 'Connected Resources:', 'Bonus Resources:');
@@ -176,13 +232,19 @@ export function parseNationText(rawText: string): NationData {
   const baseRaw = getText(text, 'My Resources:', 'Connected Resources:');
   nation.baseResources = parseResources(baseRaw.trim());
 
-  // Improvements
-  const impRaw = getText(text, 'Improvements:', 'National Wonders:');
-  nation.improvements = parseImprovements(impRaw.trim());
+  // Improvements — strip "View Improvements and Wonders" prefix
+  let impRaw = getText(text, 'Improvements:', 'National Wonders:');
+  impRaw = impRaw.replace(/View Improvements and Wonders/i, '').trim();
+  if (impRaw === 'No improvements purchased.' || !impRaw) {
+    nation.improvements = {};
+  } else {
+    nation.improvements = parseImprovements(impRaw);
+  }
 
-  // Wonders
-  const wonderRaw = getText(text, 'National Wonders:', 'Environment:');
-  nation.wonders = parseWonders(wonderRaw.trim());
+  // Wonders — strip "View Improvements and Wonders" prefix
+  let wonderRaw = getText(text, 'National Wonders:', 'Environment:');
+  wonderRaw = wonderRaw.replace(/View Improvements and Wonders/i, '').trim();
+  nation.wonders = parseWonders(wonderRaw);
 
   return nation;
 }
