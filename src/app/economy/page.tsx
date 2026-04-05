@@ -7,6 +7,8 @@ import { useNationData } from '@/hooks/useNationData';
 import { calculateInfraCost } from '@/lib/calculators/infrastructure';
 import { calculatePopulation, infraNeededForCitizens } from '@/lib/calculators/population';
 import { calculateUpkeep } from '@/lib/calculators/upkeep';
+import { calculateHappiness } from '@/lib/calculators/happiness';
+import { calculateCrime } from '@/lib/calculators/crime';
 import { NumberInput } from '@/components/shared/NumberInput';
 import { ResourceCheckboxGrid } from '@/components/shared/ResourceCheckboxGrid';
 import { formatCurrency, formatNumber, DeltaValue } from '@/components/shared/CurrencyDisplay';
@@ -106,6 +108,8 @@ export default function EconomyPage() {
         <TabsList>
           <TabsTrigger value="infra">Infrastructure</TabsTrigger>
           <TabsTrigger value="population">Population</TabsTrigger>
+          <TabsTrigger value="happiness">Happiness</TabsTrigger>
+          <TabsTrigger value="crime">Crime Index</TabsTrigger>
         </TabsList>
 
         <TabsContent value="infra" className="space-y-4 mt-4">
@@ -247,6 +251,149 @@ export default function EconomyPage() {
               </p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="happiness" className="space-y-4 mt-4">
+          {!isLoaded ? (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-sm text-muted-foreground">No nation data loaded. Enter your nation data to see a happiness breakdown.</p>
+              </CardContent>
+            </Card>
+          ) : (() => {
+            const happinessResult = calculateHappiness({
+              tech: nation.tech,
+              taxRate: nation.taxRate,
+              defcon: nation.defcon,
+              environment: nation.environment,
+              connectedResources: nation.connectedResources,
+              bonusResources: nation.bonusResources,
+              improvements: nation.improvements,
+              ownedWonders: nation.wonders,
+              crimePreventionScore: 435,
+            });
+            return (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Happiness Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left pb-2 font-medium text-muted-foreground">Source</th>
+                        <th className="text-right pb-2 font-medium text-muted-foreground">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {happinessResult.breakdown.map((item, i) => (
+                        <tr key={i} className="border-b border-border/50 last:border-0">
+                          <td className="py-1.5 pr-4">{item.source}</td>
+                          <td className={`py-1.5 text-right font-mono font-medium ${item.value > 0 ? 'text-green-400' : item.value < 0 ? 'text-red-400' : 'text-muted-foreground'}`}>
+                            {item.value > 0 ? '+' : ''}{formatNumber(item.value, 2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="border-t-2 border-border">
+                        <td className="pt-2 font-semibold">Total Happiness</td>
+                        <td className={`pt-2 text-right font-mono font-bold text-base ${happinessResult.total >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {happinessResult.total > 0 ? '+' : ''}{formatNumber(happinessResult.total, 2)}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Note: Crime Index contribution uses a default prevention score of 435. See the Crime Index tab for your actual score.
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })()}
+        </TabsContent>
+
+        <TabsContent value="crime" className="space-y-4 mt-4">
+          {!isLoaded ? (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-sm text-muted-foreground">No nation data loaded. Enter your nation data to see crime index information.</p>
+              </CardContent>
+            </Card>
+          ) : (() => {
+            const literacyRate = Math.min(20 + nation.tech * 0.1, 100);
+            const crimeResult = calculateCrime({
+              literacyRate,
+              policeHQ: nation.improvements['Police Headquarters'] ?? 0,
+              schools: nation.improvements['Schools'] ?? 0,
+              universities: nation.improvements['Universities'] ?? 0,
+              taxRate: nation.taxRate,
+              infra: nation.infra,
+              citizens: nation.citizens,
+              jails: nation.improvements['Jails'] ?? 0,
+              prisons: nation.improvements['Prisons'] ?? 0,
+              rehabFacilities: nation.improvements['Rehabilitation Facilities'] ?? 0,
+            });
+            return (
+              <>
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">Crime Index</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm">
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                      <div className="text-muted-foreground">Prevention Score</div>
+                      <div className="font-mono font-medium">{formatNumber(crimeResult.preventionScore, 1)}</div>
+                      <div className="text-muted-foreground">Crime Level</div>
+                      <div className="font-medium">
+                        <span className={
+                          crimeResult.tier.index <= 1 ? 'text-green-400' :
+                          crimeResult.tier.index <= 2 ? 'text-yellow-400' :
+                          crimeResult.tier.index <= 4 ? 'text-orange-400' :
+                          'text-red-400'
+                        }>
+                          {crimeResult.tier.label}
+                        </span>
+                        <span className="text-muted-foreground ml-2">(Index {crimeResult.tier.index})</span>
+                      </div>
+                      <div className="text-muted-foreground">Criminals</div>
+                      <div className="font-mono">{formatNumber(crimeResult.criminals, 0)}</div>
+                      <div className="text-muted-foreground">Incarcerated</div>
+                      <div className="font-mono">{formatNumber(crimeResult.incarcerated, 0)}</div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">Effects</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <p>
+                      Happiness modifier:{' '}
+                      <strong className={crimeResult.happinessEffect >= 0 ? 'text-green-400' : 'text-red-400'}>
+                        {crimeResult.happinessEffect > 0 ? '+' : ''}{formatNumber(crimeResult.happinessEffect, 1)}
+                      </strong>
+                    </p>
+                    <p>
+                      Upkeep modifier:{' '}
+                      <strong className={crimeResult.upkeepModifier <= 0 ? 'text-green-400' : 'text-red-400'}>
+                        {crimeResult.upkeepModifier > 0 ? '+' : ''}{(crimeResult.upkeepModifier * 100).toFixed(0)}%
+                      </strong>
+                    </p>
+                    <p>
+                      Criminal happiness penalty:{' '}
+                      <strong className={crimeResult.criminalHappinessPenalty >= 0 ? 'text-green-400' : 'text-red-400'}>
+                        {crimeResult.criminalHappinessPenalty > 0 ? '+' : ''}{formatNumber(crimeResult.criminalHappinessPenalty, 2)}
+                      </strong>
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Literacy rate approximated from tech: {formatNumber(literacyRate, 1)}%
+                    </p>
+                  </CardContent>
+                </Card>
+              </>
+            );
+          })()}
         </TabsContent>
       </Tabs>
     </div>
