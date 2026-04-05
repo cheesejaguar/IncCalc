@@ -11,6 +11,7 @@ import { calculateHappiness } from '@/lib/calculators/happiness';
 import { calculateCrime } from '@/lib/calculators/crime';
 import { calculateLandCost, generateLandCostCurve } from '@/lib/calculators/land';
 import { calculateWarchest, generateWarchestProjection } from '@/lib/calculators/warchest';
+import { optimizeTaxRate } from '@/lib/calculators/tax-optimizer';
 import { NumberInput } from '@/components/shared/NumberInput';
 import { ResourceCheckboxGrid } from '@/components/shared/ResourceCheckboxGrid';
 import { formatCurrency, formatNumber, DeltaValue } from '@/components/shared/CurrencyDisplay';
@@ -199,6 +200,30 @@ export default function EconomyPage() {
     [isLoaded]
   );
 
+  // Tax optimizer
+  const taxResult = useMemo(() => {
+    if (!isLoaded) return null;
+    // Base happiness excluding the tax component: total - taxHappiness
+    const taxHappiness = 28 - nation.taxRate;
+    const baseHappiness = happinessResult
+      ? happinessResult.total - taxHappiness
+      : 5; // fallback
+    return optimizeTaxRate({
+      citizens: nation.citizens,
+      grossIncome: nation.grossIncome,
+      currentTaxRate: nation.taxRate,
+      banks: nation.improvements['Banks'] ?? 0,
+      foreignMinistries: nation.improvements['Foreign Ministries'] ?? 0,
+      guerillaCamps: nation.improvements['Guerilla Camps'] ?? 0,
+      harbors: nation.improvements['Harbors'] ?? 0,
+      schools: nation.improvements['Schools'] ?? 0,
+      universities: nation.improvements['Universities'] ?? 0,
+      baseHappiness,
+      connectedResources: nation.connectedResources,
+      bonusResources: nation.bonusResources,
+    });
+  }, [isLoaded, happinessResult]);
+
   const happinessBreakdownData = useMemo(
     () =>
       happinessResult
@@ -239,6 +264,7 @@ export default function EconomyPage() {
           <TabsTrigger value="crime">Crime Index</TabsTrigger>
           <TabsTrigger value="land">Land</TabsTrigger>
           <TabsTrigger value="warchest">Warchest</TabsTrigger>
+          <TabsTrigger value="tax">Tax Optimizer</TabsTrigger>
         </TabsList>
 
         <TabsContent value="infra" className="space-y-4 mt-4">
@@ -812,6 +838,161 @@ export default function EconomyPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="tax" className="space-y-4 mt-4">
+          {!isLoaded || !taxResult ? (
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                Load your nation data on the Home page to use the tax optimizer.
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Tax Rate Optimizer</CardTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Finds the tax rate that maximizes daily income. Higher taxes collect more per citizen
+                    but reduce happiness, which lowers base income.
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Current Rate</span>
+                      <p className="text-lg font-bold">{nation.taxRate}%</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Optimal Rate</span>
+                      <p className="text-lg font-bold text-[#B92432]">{taxResult.optimalRate}%</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Income Difference</span>
+                      <p className={`text-lg font-bold ${taxResult.optimalIncome > taxResult.currentIncome ? 'text-green-400' : taxResult.optimalIncome < taxResult.currentIncome ? 'text-red-400' : 'text-muted-foreground'}`}>
+                        {taxResult.optimalIncome > taxResult.currentIncome ? '+' : ''}
+                        {formatCurrency(taxResult.optimalIncome - taxResult.currentIncome)}/day
+                      </p>
+                    </div>
+                  </div>
+
+                  {taxResult.optimalRate === nation.taxRate ? (
+                    <p className="text-sm text-green-400">Your current tax rate is already optimal.</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Changing from {nation.taxRate}% to {taxResult.optimalRate}% would
+                      {taxResult.optimalIncome > taxResult.currentIncome ? ' increase' : ' change'} your daily income by{' '}
+                      <span className="font-medium text-foreground">{formatCurrency(Math.abs(taxResult.optimalIncome - taxResult.currentIncome))}</span>/day.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Daily Income vs Tax Rate</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={taxResult.curve}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
+                        <XAxis
+                          dataKey="taxRate"
+                          tick={AXIS_TICK}
+                          tickFormatter={(v) => `${v}%`}
+                          label={{ value: 'Tax Rate', position: 'insideBottom', offset: -2, fill: CHART_THEME.text, fontSize: 12 }}
+                        />
+                        <YAxis
+                          tick={AXIS_TICK}
+                          tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+                        />
+                        <Tooltip
+                          {...TOOLTIP_STYLE}
+                          labelFormatter={(v) => `Tax Rate: ${v}%`}
+                          formatter={(v: unknown, name: unknown) => {
+                            const n = typeof v === 'number' ? v : 0;
+                            const labels: Record<string, string> = {
+                              dailyNetIncome: 'Daily Income',
+                            };
+                            return [formatCurrency(n), labels[String(name)] ?? String(name)];
+                          }}
+                        />
+                        <ReferenceLine
+                          x={nation.taxRate}
+                          stroke={CHART_THEME.secondary}
+                          strokeDasharray="5 5"
+                          label={{ value: `Current (${nation.taxRate}%)`, fill: CHART_THEME.text, fontSize: 10, position: 'top' }}
+                        />
+                        <ReferenceLine
+                          x={taxResult.optimalRate}
+                          stroke={CHART_THEME.primary}
+                          strokeDasharray="3 3"
+                          label={{ value: `Optimal (${taxResult.optimalRate}%)`, fill: CHART_THEME.primary, fontSize: 10, position: 'top' }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="dailyNetIncome"
+                          stroke={CHART_THEME.primary}
+                          fill={CHART_THEME.area1}
+                          strokeWidth={2}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Rate Comparison Table</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className="text-left py-2 px-2">Tax Rate</th>
+                          <th className="text-right py-2 px-2">Happiness</th>
+                          <th className="text-right py-2 px-2">Income/Citizen</th>
+                          <th className="text-right py-2 px-2">Tax/Citizen</th>
+                          <th className="text-right py-2 px-2">Daily Income</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {taxResult.curve.map((pt) => (
+                          <tr
+                            key={pt.taxRate}
+                            className={`border-b border-border/50 ${
+                              pt.taxRate === taxResult.optimalRate
+                                ? 'bg-[rgba(185,36,50,0.1)] font-medium'
+                                : pt.taxRate === nation.taxRate
+                                ? 'bg-accent/50'
+                                : ''
+                            }`}
+                          >
+                            <td className="py-1.5 px-2">
+                              {pt.taxRate}%
+                              {pt.taxRate === taxResult.optimalRate && (
+                                <span className="ml-1 text-[10px] text-[#B92432] uppercase font-bold">Best</span>
+                              )}
+                              {pt.taxRate === nation.taxRate && pt.taxRate !== taxResult.optimalRate && (
+                                <span className="ml-1 text-[10px] text-muted-foreground uppercase">Current</span>
+                              )}
+                            </td>
+                            <td className="text-right py-1.5 px-2">{formatNumber(pt.happiness, 1)}</td>
+                            <td className="text-right py-1.5 px-2">{formatCurrency(pt.perCitizenIncome)}</td>
+                            <td className="text-right py-1.5 px-2">{formatCurrency(pt.taxPerCitizen)}</td>
+                            <td className="text-right py-1.5 px-2 font-mono">{formatCurrency(pt.dailyNetIncome)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </TabsContent>
       </Tabs>
     </div>
