@@ -44,27 +44,47 @@ export function calculateWonderProjections(
 
   const hapIncome = 2 * incomeMod * input.taxRate;
 
-  // Per-wonder projected income formulas (from wonder.inc.php lines 47-71)
-  const wonderIncomeMap: Record<string, number> = {
-    'Internet':                input.netIncome + hapIncome * 5 * input.citizenCount,
-    'Space Program':           input.netIncome + hapIncome * 3 * input.citizenCount,
-    'Great Monument':          input.netIncome + hapIncome * 4 * input.citizenCount,
-    'Movie Industry':          input.netIncome + hapIncome * 3 * input.citizenCount,
-    'Great University':        input.netIncome + hapIncome * 0.002 * input.tech * input.citizenCount,
-    'National Research Lab':   input.netIncome + input.citizenIncome * 0.03 * input.citizenCount,
-    'Social Security System':  input.netIncome + (input.netIncome * 2) / 28,
-    'Disaster Relief Agency':  input.netIncome + input.citizenIncome * 0.03 * input.citizenCount,
-    'Great Temple':            input.netIncome + hapIncome * 5 * input.citizenCount,
-    'National War Memorial':   input.netIncome + hapIncome * 4 * input.citizenCount,
-    'Stock Market':            input.netIncome + 10 * input.taxRate * incomeMod * input.citizenCount,
-  };
-
   // If wonder is owned, projected income = just net income (no gain)
   const projections: WonderProjection[] = WONDERS.map((wonder) => {
     const owned = input.ownedWonders.includes(wonder.name);
-    const projectedIncome = owned
-      ? input.netIncome
-      : (wonderIncomeMap[wonder.name] ?? input.netIncome);
+
+    let projectedIncome: number;
+    if (owned) {
+      projectedIncome = input.netIncome;
+    } else {
+      // Special cases
+      if (wonder.name === 'Great University') {
+        // Happiness based on tech level: +0.2% of tech level
+        const hapGain = hapIncome * 0.002 * input.tech * input.citizenCount;
+        projectedIncome = input.netIncome + hapGain;
+      } else if (wonder.name === 'Social Security System') {
+        // Allows raising tax by ~2% (from 28% to 30%), gains ~2/28 of net income
+        projectedIncome = input.netIncome + (input.netIncome * 2) / 28;
+      } else if (wonder.name === 'Stock Market') {
+        // +$10 citizen income bonus (citizenIncomeBonus = 10)
+        projectedIncome = input.netIncome + wonder.citizenIncomeBonus * input.taxRate * input.citizenCount;
+      } else if (wonder.name === 'Mining Industry Consortium') {
+        // +$2 income for each of Coal/Lead/Oil/Uranium resources owned (assume 2 on average)
+        projectedIncome = input.netIncome + 2 * 2 * input.taxRate * input.citizenCount;
+      } else {
+        // Generic formula from WonderDef properties
+        let income = input.netIncome;
+        if (wonder.happinessEffect > 0) {
+          income += hapIncome * wonder.happinessEffect * input.citizenCount;
+        }
+        if (wonder.populationEffect > 0) {
+          income += input.citizenIncome * (input.citizenCount * wonder.populationEffect);
+        }
+        if (wonder.citizenIncomeBonus > 0) {
+          income += wonder.citizenIncomeBonus * input.taxRate * input.citizenCount;
+        }
+        if (wonder.infraUpkeepDiscount > 0) {
+          income += input.netIncome * wonder.infraUpkeepDiscount * 0.5;
+        }
+        projectedIncome = income;
+      }
+    }
+
     const incomeGain = projectedIncome - input.netIncome;
     const daysToROI = incomeGain > 0 ? wonder.cost / incomeGain : 0;
 

@@ -47,22 +47,55 @@ export function calculateImprovementAnalysis(
   const hapIncome = 2 * incomeMod * taxRate;
 
   // Per-improvement income change formulas (from improvement.inc.php lines 59-87)
+  // Military/defensive improvements with no income effect use 0.
   const incomeChanges: Record<string, number> = {
-    'Banks':                  0.07 * netIncome,
-    'Border Walls':           (citizenIncome + 2 * hapIncome) * (citizenCount * 0.98) - netIncome,
-    'Churches':               (citizenIncome + 1 * hapIncome) * (citizenCount * 1.00) - netIncome,
-    'Clinics':                (citizenIncome + 0 * hapIncome) * (citizenCount * 1.02) - netIncome,
-    'Factories':              0,
-    'Foreign Ministries':     0.05 * netIncome,
-    'Guerilla Camps':         -0.08 * netIncome,
-    'Harbors':                (citizenIncome + 1 * hapIncome) * (citizenCount * 1.00) - netIncome,
-    'Hospitals':              (citizenIncome + 0 * hapIncome) * (citizenCount * 1.06) - netIncome,
-    'Intelligence Agencies':  (citizenIncome + 1 * hapIncome) * (citizenCount * 1.00) - netIncome,
-    'Labor Camps':            ((citizenIncome - 1 * hapIncome) * (citizenCount * 1.00) - netIncome) + (infraUpkeepBill * 0.10),
-    'Police Headquarters':    (citizenIncome + 2 * hapIncome) * (citizenCount * 1.00) - netIncome,
-    'Schools':                0.05 * netIncome,
-    'Stadiums':               (citizenIncome + 3 * hapIncome) * (citizenCount * 1.00) - netIncome,
-    'Universities':           0.08 * netIncome,
+    // Income % improvements
+    'Banks':                        0.07 * netIncome,
+    'Foreign Ministries':           0.05 * netIncome,
+    'Guerilla Camps':               -0.08 * netIncome,
+    'Harbors':                      0.01 * netIncome,
+    'Schools':                      0.05 * netIncome,
+    'Universities':                 0.08 * netIncome,
+
+    // Happiness improvements: hapIncome * happinessValue * citizenCount
+    'Churches':                     hapIncome * 1 * citizenCount,
+    'Intelligence Agencies':        hapIncome * 1 * citizenCount, // +1 happiness when tax >23%
+    'Police Headquarters':          hapIncome * 2 * citizenCount,
+    'Red Light Districts':          hapIncome * 1 * citizenCount,
+    'Stadiums':                     hapIncome * 3 * citizenCount,
+
+    // Population improvements: citizenIncome * citizenCount * populationRate
+    'Clinics':                      citizenIncome * citizenCount * 0.02,
+    'Hospitals':                    citizenIncome * citizenCount * 0.06,
+
+    // Mixed: happiness + population change
+    'Border Walls':                 hapIncome * 2 * citizenCount + citizenIncome * citizenCount * (-0.02),
+
+    // Upkeep reduction: infraUpkeepBill * 0.10 minus the happiness penalty
+    'Labor Camps':                  infraUpkeepBill * 0.10 - hapIncome * 1 * citizenCount,
+
+    // Casinos: happiness gain minus income loss (1.5 hap, -1% citizen income)
+    'Casinos':                      hapIncome * 1.5 * citizenCount - 0.01 * citizenIncome * citizenCount,
+
+    // Military/defensive improvements with no income effect
+    'Airports':                     0,
+    'Barracks':                     0,
+    'Border Fortifications':        0,
+    'Bunkers':                      0,
+    'Drydocks':                     0,
+    'Factories':                    0,
+    'Forward Operating Bases':      0,
+    'Jails':                        0,
+    'Missile Defenses':             0,
+    'Munitions Factories':          0,
+    'Naval Academies':              0,
+    'Naval Construction Yards':     0,
+    'Offices of Propaganda':        0,
+    'Prisons':                      0,
+    'Radiation Containment':        0,
+    'Rehabilitation Facilities':    0,
+    'Satellites':                   0,
+    'Shipyards':                    0,
   };
 
   const results: ImprovementAnalysis[] = [];

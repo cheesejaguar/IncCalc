@@ -188,3 +188,8 @@ export interface ImprovementAnalysis {
   infraPerDay: number;
   canPurchase: boolean;
 }
+
+export interface HappinessBreakdownItem {
+  source: string;
+  value: number;
+}
