@@ -11,6 +11,8 @@ import {
   Star,
   Gem,
   Home,
+  GitCompare,
+  ArrowRightLeft,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -21,6 +23,8 @@ const NAV_ITEMS = [
   { href: '/improvements', label: 'Improvements', icon: Users },
   { href: '/wonders', label: 'Wonders', icon: Star },
   { href: '/resources', label: 'Resources', icon: Gem },
+  { href: '/scenario', label: 'Scenario', icon: GitCompare },
+  { href: '/trades', label: 'Trades', icon: ArrowRightLeft },
 ];
 
 export function Sidebar() {
