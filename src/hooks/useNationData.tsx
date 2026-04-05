@@ -11,17 +11,21 @@ import {
 import type { NationData } from '@/lib/types';
 import { createEmptyNation } from '@/lib/types';
 import { saveNationData, loadNationData, clearNationData } from '@/lib/storage';
-import { GOVERNMENT_MODIFIER_ELIGIBLE } from '@/lib/data/resources';
+import { GOVERNMENT_INFRA_ELIGIBLE, GOVERNMENT_MILITARY_ELIGIBLE } from '@/lib/data/resources';
 
 interface NationDataContextType {
   nation: NationData;
   isLoaded: boolean;
   setNation: (data: NationData) => void;
   clearNation: () => void;
-  /** All active resources + bonuses as lowercase array for calculator input */
+  /** All active resources + bonuses as lowercase array for infra/upkeep/tech calculators */
   allResources: string[];
-  /** Whether government modifier applies */
-  hasGovernmentModifier: boolean;
+  /** All active resources + bonuses as lowercase array for mobilize calculator */
+  allMilitaryResources: string[];
+  /** Whether infra government modifier applies */
+  hasInfraGovernmentModifier: boolean;
+  /** Whether military government modifier applies */
+  hasMilitaryGovernmentModifier: boolean;
 }
 
 const NationDataContext = createContext<NationDataContextType | null>(null);
@@ -51,15 +55,29 @@ export function NationDataProvider({ children }: { children: ReactNode }) {
     clearNationData();
   }, []);
 
-  const hasGovernmentModifier = GOVERNMENT_MODIFIER_ELIGIBLE.some(
+  const hasInfraGovernmentModifier = GOVERNMENT_INFRA_ELIGIBLE.some(
     (g) => nation.government.includes(g)
   );
 
-  // Combine connected + bonus resources as lowercase, plus "government" if eligible
-  const allResources = [
+  const hasMilitaryGovernmentModifier = GOVERNMENT_MILITARY_ELIGIBLE.some(
+    (g) => nation.government.includes(g)
+  );
+
+  const baseResources = [
     ...nation.connectedResources.map((r) => r.toLowerCase()),
     ...nation.bonusResources.map((r) => r.toLowerCase()),
-    ...(hasGovernmentModifier ? ['government'] : []),
+  ];
+
+  // Infra/upkeep/tech calculators use the infra government modifier
+  const allResources = [
+    ...baseResources,
+    ...(hasInfraGovernmentModifier ? ['government'] : []),
+  ];
+
+  // Mobilize calculator uses the military government modifier
+  const allMilitaryResources = [
+    ...baseResources,
+    ...(hasMilitaryGovernmentModifier ? ['government'] : []),
   ];
 
   return (
@@ -70,7 +88,9 @@ export function NationDataProvider({ children }: { children: ReactNode }) {
         setNation,
         clearNation,
         allResources,
-        hasGovernmentModifier,
+        allMilitaryResources,
+        hasInfraGovernmentModifier,
+        hasMilitaryGovernmentModifier,
       }}
     >
       {children}

@@ -44,7 +44,7 @@ const COST_RESOURCE_OPTIONS = [
 ];
 
 export default function MilitaryPage() {
-  const { nation, isLoaded, allResources } = useNationData();
+  const { nation, isLoaded, allMilitaryResources } = useNationData();
 
   // Mobilize state
   const [citizens, setCitizens] = useState(isLoaded ? nation.citizens : 1000);
@@ -55,7 +55,7 @@ export default function MilitaryPage() {
   );
   const [barracks, setBarracks] = useState(0);
   const [milResources, setMilResources] = useState<string[]>(
-    isLoaded ? allResources.filter((r) => r in MILITARY_MODIFIERS || ['iron', 'oil', 'lead'].includes(r)) : []
+    isLoaded ? allMilitaryResources.filter((r) => r in MILITARY_MODIFIERS || ['iron', 'oil', 'lead'].includes(r)) : []
   );
 
   // Spy state

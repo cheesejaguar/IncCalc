@@ -82,7 +82,7 @@ export const MILITARY_MODIFIERS: Record<string, ResourceModifier> = {
   lead:       { name: 'Lead',       value: 0,    direction: 'bonus' },
   oil:        { name: 'Oil',        value: 0.10, direction: 'bonus' },
   pigs:       { name: 'Pigs',       value: 0.15, direction: 'bonus' },
-  government: { name: 'Government', value: 0.05, direction: 'bonus' },
+  government: { name: 'Government', value: 0.08, direction: 'bonus' },
 };
 
 // Military improvement modifiers (exponential stacking)
@@ -91,12 +91,14 @@ export const MILITARY_IMPROVEMENT_MODIFIERS: Record<string, ResourceModifier> = 
   barr:  { name: 'Barracks',       value: 0.10, direction: 'bonus' },
 };
 
-// Governments that qualify for "government" modifier
-export const GOVERNMENT_MODIFIER_ELIGIBLE = [
-  'Capitalist',
-  'Dictatorship',
-  'Federal Government',
-  'Monarchy',
-  'Republic',
-  'Revolutionary Government',
+// Governments that qualify for infrastructure cost -5% modifier
+export const GOVERNMENT_INFRA_ELIGIBLE = [
+  'Capitalist', 'Dictatorship', 'Federal Government',
+  'Monarchy', 'Republic', 'Revolutionary Government',
+];
+
+// Governments that qualify for soldier efficiency +8% modifier
+export const GOVERNMENT_MILITARY_ELIGIBLE = [
+  'Communist', 'Democracy', 'Dictatorship',
+  'Federal Government', 'Transitional',
 ];
