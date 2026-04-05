@@ -76,6 +76,7 @@ export interface InfraInput {
   purchaseAmount: number;
   factories: number;
   activeResources: string[];
+  ownedWonders?: string[];
 }
 
 export interface InfraResult {
@@ -108,6 +109,7 @@ export interface UpkeepInput {
   nationStrength: number;
   laborCamps: number;
   activeResources: string[];
+  ownedWonders?: string[];
 }
 
 export interface UpkeepResult {

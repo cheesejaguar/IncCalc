@@ -38,6 +38,18 @@ export function calculateInfraCost(input: InfraInput): InfraResult {
   // Apply factory modifier (linear stacking)
   modifier *= linearImprovementModifier(input.factories, 0.08);
 
+  // Wonder modifiers
+  if (input.ownedWonders) {
+    if (input.ownedWonders.includes('Moon Base')) modifier *= 0.96;
+    if (input.ownedWonders.includes('Mars Base')) modifier *= 0.97;
+    // Scientific Development Center buffs factory discount from 8% to 10% per factory
+    if (input.ownedWonders.includes('Scientific Development Center') && input.factories > 0) {
+      const normalFactory = 1 - input.factories * 0.08;
+      const sdcFactory = 1 - input.factories * 0.10;
+      if (normalFactory > 0) modifier *= sdcFactory / normalFactory;
+    }
+  }
+
   const stepSize = 10;
   const steps = Math.floor(input.purchaseAmount / stepSize);
   let totalCost = 0;

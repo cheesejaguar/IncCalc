@@ -61,6 +61,7 @@ export default function EconomyPage() {
         purchaseAmount: Math.min(infraWanted, 5000),
         factories,
         activeResources: infraResources,
+        ownedWonders: isLoaded ? nation.wonders : [],
       }),
     [infraHave, infraWanted, factories, infraResources]
   );
@@ -89,6 +90,7 @@ export default function EconomyPage() {
         nationStrength: ns,
         laborCamps,
         activeResources: infraResources,
+        ownedWonders: isLoaded ? nation.wonders : [],
       }),
     [infraHave, infraWanted, tech, ns, laborCamps, infraResources]
   );
