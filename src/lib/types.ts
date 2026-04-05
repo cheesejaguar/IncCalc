@@ -152,6 +152,7 @@ export interface MobilizeResult {
   maxTanks: number;
   tankCost: number;
   totalTankCost: number;
+  tankUpkeep: number;
   modifier: number;
 }
 

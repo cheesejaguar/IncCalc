@@ -49,6 +49,11 @@ export function calculateMobilize(input: MobilizeInput): MobilizeResult {
   }
   if (lowerRes.includes('lead')) tankCost *= 0.92;
 
+  // Tank upkeep: $40 base, -5% for iron, -5% for oil, -5% for lead
+  let tankUpkeep = 40;
+  if (lowerRes.includes('iron')) tankUpkeep *= 0.95;
+  if (lowerRes.includes('oil')) tankUpkeep *= 0.95;
+
   return {
     maxSoldiers: Math.max(0, maxSoldiers),
     soldierCost,
@@ -56,6 +61,7 @@ export function calculateMobilize(input: MobilizeInput): MobilizeResult {
     maxTanks: Math.max(0, maxTanks),
     tankCost,
     totalTankCost: Math.max(0, maxTanks) * tankCost,
+    tankUpkeep,
     modifier,
   };
 }

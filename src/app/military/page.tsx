@@ -310,6 +310,9 @@ export default function MilitaryPage() {
                 at {formatCurrency(mobilizeResult.tankCost)} each ={' '}
                 <strong>{formatCurrency(mobilizeResult.totalTankCost)}</strong>
               </p>
+              <p>
+                Tank Upkeep: <strong>{formatCurrency(mobilizeResult.tankUpkeep)}/tank/day</strong>
+              </p>
               <p className="text-xs text-muted-foreground mt-2">
                 Modifier: {(mobilizeResult.modifier * 100).toFixed(2)}%
               </p>
