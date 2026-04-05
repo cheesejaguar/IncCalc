@@ -53,7 +53,7 @@ export function calculateImprovementAnalysis(
     'Churches':               (citizenIncome + 1 * hapIncome) * (citizenCount * 1.00) - netIncome,
     'Clinics':                (citizenIncome + 0 * hapIncome) * (citizenCount * 1.02) - netIncome,
     'Factories':              0,
-    'Foreign Ministries':     0.07 * netIncome,
+    'Foreign Ministries':     0.05 * netIncome,
     'Guerilla Camps':         -0.08 * netIncome,
     'Harbors':                (citizenIncome + 1 * hapIncome) * (citizenCount * 1.00) - netIncome,
     'Hospitals':              (citizenIncome + 0 * hapIncome) * (citizenCount * 1.06) - netIncome,
