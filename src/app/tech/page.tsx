@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNationData } from '@/hooks/useNationData';
 import { calculateTechCost } from '@/lib/calculators/tech';
 import { NumberInput } from '@/components/shared/NumberInput';
 import { ResourceCheckboxGrid } from '@/components/shared/ResourceCheckboxGrid';
 import { formatCurrency, formatNumber } from '@/components/shared/CurrencyDisplay';
+import { HelpTip } from '@/components/shared/HelpTip';
 import { TECH_MODIFIERS } from '@/lib/data/resources';
 
 const TECH_RESOURCE_OPTIONS = Object.entries(TECH_MODIFIERS).map(([key, mod]) => ({
@@ -44,6 +45,9 @@ export default function TechPage() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Technology Purchase</CardTitle>
+          <CardDescription>
+            Calculate technology purchase costs. Tech gets more expensive at higher levels. Universities and resources provide discounts.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -63,7 +67,7 @@ export default function TechPage() {
             />
             <NumberInput
               id="universities"
-              label="Universities"
+              label={<span>Universities <HelpTip term="Universities" /></span>}
               value={universities}
               onChange={setUniversities}
               min={0}

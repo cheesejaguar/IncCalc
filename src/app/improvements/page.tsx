@@ -7,6 +7,7 @@ import { calculateImprovementAnalysis } from '@/lib/calculators/improvement-advi
 import { calculateUpkeep } from '@/lib/calculators/upkeep';
 import { getInfraUnitCost } from '@/lib/calculators/infrastructure';
 import { formatCurrency, formatNumber } from '@/components/shared/CurrencyDisplay';
+import { HelpTip } from '@/components/shared/HelpTip';
 import {
   Table,
   TableBody,
@@ -88,7 +89,7 @@ export default function ImprovementsPage() {
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Improvement Analysis</CardTitle>
           <CardDescription>
-            Which improvement will generate the most cash or largest infra purchase capability.
+            Compare improvement ROI — which purchase generates the most income per day after $5,000 daily upkeep. Gray rows cannot be purchased (max count reached or missing prerequisites).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -98,7 +99,9 @@ export default function ImprovementsPage() {
                 <TableHead>Improvement</TableHead>
                 <TableHead className="text-right">Current</TableHead>
                 <TableHead className="text-right">Income Change</TableHead>
-                <TableHead className="text-right">ROI</TableHead>
+                <TableHead className="text-right">
+                  ROI <HelpTip term="ROI" />
+                </TableHead>
                 <TableHead className="text-right">Infra/Day</TableHead>
               </TableRow>
             </TableHeader>

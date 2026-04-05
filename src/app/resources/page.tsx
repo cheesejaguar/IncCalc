@@ -180,6 +180,9 @@ export default function ResourcesPage() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Modifier Comparison</CardTitle>
+          <CardDescription>
+            Compare resource sets by their modifier effects on infrastructure, population, upkeep, technology, and military. Toggle resources on/off to see the impact.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-5 gap-4 text-sm">

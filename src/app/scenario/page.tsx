@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNationData } from '@/hooks/useNationData';
 import { calculateInfraCost } from '@/lib/calculators/infrastructure';
 import { calculateTechCost } from '@/lib/calculators/tech';
@@ -293,6 +293,9 @@ export default function ScenarioPage() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Proposed Changes</CardTitle>
+          <CardDescription>
+            Model proposed changes and see the total cost, income impact, and ROI before committing. Only increases from current values are calculated.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">

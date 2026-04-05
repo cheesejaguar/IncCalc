@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
@@ -30,6 +30,7 @@ import { CHART_THEME, TOOLTIP_STYLE, AXIS_TICK } from '@/lib/chart-theme';
 import { NumberInput } from '@/components/shared/NumberInput';
 import { ResourceCheckboxGrid } from '@/components/shared/ResourceCheckboxGrid';
 import { formatCurrency, formatNumber } from '@/components/shared/CurrencyDisplay';
+import { HelpTip } from '@/components/shared/HelpTip';
 import { MILITARY_MODIFIERS } from '@/lib/data/resources';
 import type { ThreatLevel } from '@/lib/types';
 import {
@@ -275,14 +276,17 @@ export default function MilitaryPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">War Mobilization</CardTitle>
+              <CardDescription>
+                Calculate maximum soldier and tank counts, plus purchase costs. <HelpTip term="DEFCON" /> level affects soldier pricing.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <NumberInput id="citizens" label="Citizens" value={citizens} onChange={setCitizens} min={0} />
                 <NumberInput id="soldiers" label="Current Soldiers" value={currentSoldiers} onChange={setCurrentSoldiers} min={0} />
                 <NumberInput id="tanks" label="Current Tanks" value={currentTanks} onChange={setCurrentTanks} min={0} />
-                <NumberInput id="gcamps" label="Guerilla Camps" value={guerillaCamps} onChange={setGuerillaCamps} min={0} max={5} />
-                <NumberInput id="barracks" label="Barracks" value={barracks} onChange={setBarracks} min={0} max={5} />
+                <NumberInput id="gcamps" label={<span>Guerilla Camps <HelpTip term="Guerilla Camps" /></span>} value={guerillaCamps} onChange={setGuerillaCamps} min={0} max={5} />
+                <NumberInput id="barracks" label={<span>Barracks <HelpTip term="Barracks" /></span>} value={barracks} onChange={setBarracks} min={0} max={5} />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-2">Military Resources</p>
@@ -324,6 +328,9 @@ export default function MilitaryPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Spy Operation Odds</CardTitle>
+              <CardDescription>
+                Probability of spy operation success against an enemy nation. Your tech and spies vs. their tech, spies, and land.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -333,7 +340,9 @@ export default function MilitaryPage() {
                 <NumberInput id="enemy-tech" label="Enemy Tech" value={enemyTech} onChange={setEnemyTech} min={0} />
                 <NumberInput id="enemy-land" label="Enemy Land" value={enemyLand} onChange={setEnemyLand} min={0} />
                 <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Threat Level</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    Threat Level <HelpTip term="Threat Level" />
+                  </Label>
                   <Select value={threatLevel} onValueChange={(v) => setThreatLevel(v as ThreatLevel)}>
                     <SelectTrigger className="h-8 text-sm">
                       <SelectValue />
@@ -411,6 +420,9 @@ export default function MilitaryPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Navy Overview</CardTitle>
+              <CardDescription>
+                Navy vessel costs and requirements. Requires Harbor improvement and 1,000+ miles of land to build vessels.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               {navyResult.canBuildNavy ? (
@@ -501,6 +513,9 @@ export default function MilitaryPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Aircraft</CardTitle>
+              <CardDescription>
+                Aircraft, cruise missile, and nuclear weapon costs with resource modifiers.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <p>
@@ -572,6 +587,9 @@ export default function MilitaryPage() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Attacker</CardTitle>
+                <CardDescription>
+                  Ground battle probability calculator. Accounts for soldiers, tanks, technology, DEFCON, and day/night bonuses.
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
@@ -597,7 +615,9 @@ export default function MilitaryPage() {
                     min={0}
                   />
                   <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">DEFCON</Label>
+                    <Label className="text-xs text-muted-foreground">
+                      DEFCON <HelpTip term="DEFCON" />
+                    </Label>
                     <Select
                       value={String(atkDefcon)}
                       onValueChange={(v) => setAtkDefcon(Number(v))}
@@ -660,7 +680,9 @@ export default function MilitaryPage() {
                     min={0}
                   />
                   <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">DEFCON</Label>
+                    <Label className="text-xs text-muted-foreground">
+                      DEFCON <HelpTip term="DEFCON" />
+                    </Label>
                     <Select
                       value={String(defDefcon)}
                       onValueChange={(v) => setDefDefcon(Number(v))}
@@ -760,6 +782,9 @@ export default function MilitaryPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Nation Strength Inputs</CardTitle>
+              <CardDescription>
+                Calculate <HelpTip term="Nation Strength" /> and valid war target range (75%–133% of your NS).
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -853,7 +878,9 @@ export default function MilitaryPage() {
                 <p className="text-sm text-muted-foreground mt-1">Nation Strength</p>
               </div>
               <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
-                <span className="text-muted-foreground">War range (can attack)</span>
+                <span className="text-muted-foreground">
+                  War range (can attack) <HelpTip term="War Range" />
+                </span>
                 <span className="font-mono font-medium">
                   {formatNumber(nsResult.warRangeMin, 2)} — {formatNumber(nsResult.warRangeMax, 2)}
                 </span>

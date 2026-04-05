@@ -14,6 +14,7 @@ import {
 import { useNationData } from '@/hooks/useNationData';
 import { ALL_RESOURCES } from '@/lib/data/resources';
 import { calculateTradeCircle } from '@/lib/calculators/trade-circle';
+import { HelpTip } from '@/components/shared/HelpTip';
 
 // ─── Preset circles ────────────────────────────────────────────────────────────
 
@@ -128,7 +129,9 @@ export default function TradesPage() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Preset Circles</CardTitle>
-          <CardDescription>Quick-load a common trade circle configuration.</CardDescription>
+          <CardDescription>
+            Build a <HelpTip term="Trade Circle" /> of 6 players (12 resources total). Specific combinations unlock <HelpTip term="Bonus Resources" /> with powerful effects.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
